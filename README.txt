@@ -1,11 +1,11 @@
-Neccessary milestones:
+Necessary milestones:
 
 1) Create a simple server, which can handle many connections.
 
 	1.1) Create a list of connected users and allow users to query it.
 
 	1.2) Allow users to select a folder and store all file names from this folder to the server
-	(maybe with hashcodes.)
+	(maybe with hash codes.)
 	Store filenames in some structure where they will be associated with user.
 
 	1.3) Allow other users to see which files everybody has.
@@ -28,7 +28,7 @@ Important things:
 
 -How to synchronize files that are downloaded and uploaded.
 -How and when to update file folder.
--How to be sure that files are the same(hash, checksum?)
+-How to be sure that files are the same(hash, check sum?)
 -How to synchronize multiple peers on one file. E.g. when one file is downloaded from multiple peers, how to decide who provides which part of the file.
 -How to deal with users exiting during upload/download process?
 
