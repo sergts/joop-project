@@ -9,13 +9,15 @@ import java.net.Socket;
 
 public class ClientThread extends Thread {
 	String fileName;
-	public ClientThread(String fileName) {
+	String ip;
+	public ClientThread(String ip, String fileName) {
 		this.fileName = fileName;
+		this.ip = ip; //82.147.183.139
 		start();
 	}
     public void run() {
         try {
-            Socket clientSocket = new Socket("82.147.183.139", 7777);
+            Socket clientSocket = new Socket(ip, 7777);
             File outputFile = new File(fileName);
             System.out.println("Client: connected to server.");
             InputStream in = clientSocket.getInputStream();
