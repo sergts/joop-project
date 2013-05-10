@@ -30,7 +30,12 @@ class Broadcaster extends Thread {
 						String who = "Who: ";
 						for(ClientSession sess : activeSessions.getSessions()) who += sess.getName() + " ";
 						cli.sendMessage(who);
-					} else if(msg.contents.split(" ")[0].equals("DOWNLOAD") && msg.to.equals(cli.getName())){
+					} 
+					/*
+					 * if message is DOWNLOAD <filename> FROM <username>, then scan all active users to find the one
+					 * you want to download from, check if he has this file, and open connections between two users.
+					 */
+					else if(msg.contents.split(" ")[0].equals("DOWNLOAD") && msg.to.equals(cli.getName())){
 						
 						
 						String str = msg.contents;

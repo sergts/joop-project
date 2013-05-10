@@ -9,8 +9,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.Timer;
+
 
 
 class ClientSession extends Thread {
@@ -23,7 +22,7 @@ class ClientSession extends Thread {
 	
 	
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
-		//watcher = new DirWatcher("H:\\Projects\\test");
+		//watcher = new DirWatcher("");
 		socket = s;
 		outQueue = out;
 		activeSessions = as;
@@ -66,11 +65,11 @@ class ClientSession extends Thread {
 				
 				if(str.split(" ")[0].equals("SHARE")) watcher = new DirWatcher(str.split(" ")[1]);
 				
-				if(str.equals("FILES")) outQueue.addMessage(new Message("FILES", this.getName()));
+				else if(str.equals("FILES")) outQueue.addMessage(new Message("FILES", this.getName()));
 				
-				if(str.equals("WHO")) outQueue.addMessage(new Message("WHO", this.getName()));
+				else if(str.equals("WHO")) outQueue.addMessage(new Message("WHO", this.getName()));
 				
-				if(str.split(" ")[0].equals("DOWNLOAD")) outQueue.addMessage(new Message(str, this.getName()));
+				else if(str.split(" ")[0].equals("DOWNLOAD")) outQueue.addMessage(new Message(str, this.getName()));
 				
 				else if(str.split(" ")[0].equals("TALK"))  outQueue.addMessage(new Message(this.getName() + " ütleb sulle: " + str.substring(5 + (str.split(" ")[1].length())), (str.split(" ")[1])));
 				else outQueue.addMessage(new Message(str, null));
