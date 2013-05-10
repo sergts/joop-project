@@ -8,15 +8,17 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ServerThread extends Thread {
+public class FileSender extends Thread {
 	String fileName;
-	public ServerThread(String file) {
+	int port;
+	public FileSender(String file, int port) {
 		this.fileName = file;
+		this.port = port;
 		start();
 	}
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(7777);
+            ServerSocket serverSocket = new ServerSocket(port);
             File file = new File(fileName);
              
             System.out.println("Server: waiting for a client to connect.");

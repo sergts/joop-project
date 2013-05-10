@@ -7,17 +7,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-public class ClientThread extends Thread {
+public class FileReceiver extends Thread {
 	String fileName;
 	String ip;
-	public ClientThread(String ip, String fileName) {
+	int port;
+	public FileReceiver(String ip, String fileName, int port) {
 		this.fileName = fileName;
 		this.ip = ip; //82.147.183.139
+		this.port = port;
 		start();
 	}
     public void run() {
         try {
-            Socket clientSocket = new Socket(ip, 7777);
+            Socket clientSocket = new Socket(ip, port);
             File outputFile = new File(fileName);
             System.out.println("Client: connected to server.");
             InputStream in = clientSocket.getInputStream();

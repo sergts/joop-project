@@ -1,36 +1,37 @@
 package project;
 
-import java.net.*;
-import java.io.*;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 
 public class Server {
+	private static final int PORT = 8888;
 
-	public static void main(String[] args) {
-		int port = 8888;
+	public static void main(String[] args) throws IOException {
+		ActiveSessions activeSessions = new ActiveSessions();
+		OutboundMessages outQueue = new OutboundMessages();
 
+		ServerSocket serv = new ServerSocket(PORT);
+		System.out.println("Server startis...");
+		
+		new Broadcaster(activeSessions, outQueue);
+		
 		try {
-			ServerSocket serv = new ServerSocket(port);
-			
-			// Serveri igavene töötsükkel
-			while (true) {
-				System.out.println("Server: kuulan pordil: " + port);
-				Socket clisock = serv.accept();			// accept() jääb ootama, kuniks luuakse ühendus
-				
+			while (true) { 									// serveri tÃ¶Ã¶tsÃ¼kkel
+				Socket sock = serv.accept(); 				// blocked!
 				try {
-					new Client(clisock);			// loome kliendiseansi lõime ning uuesti tagasi porti kuulama
+					new ClientSession(sock, outQueue, activeSessions); // sh. ClientSession.start()
 				} catch (IOException e) {
-					clisock.close();					// Kui ühendust ei loodud, sulgeme sokli
+					System.out.println("Socketi loomise avarii :(");
+					sock.close();
 				}
-					
-				System.out.println("Server: alati valmis uusi kliente teenindama!");
-				
-			} // töötsükli lõpp
+			} 
 
-		} catch (IOException e) {
-			System.out.println("IO viga :" + e.getMessage());
-			e.printStackTrace();
+		} finally {
+			System.out.println("Server lÃµpetas");
+			serv.close();
 		}
-
 	}
 }

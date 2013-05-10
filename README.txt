@@ -1,3 +1,8 @@
+Final project for the Java OOP class. The idea is to create a network application, which should allow users to share files.
+
+
+
+
 Necessary milestones:
 
 1) Create a simple server, which can handle many connections.
