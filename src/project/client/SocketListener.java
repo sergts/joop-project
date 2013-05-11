@@ -1,16 +1,18 @@
 package project.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.Collection;
 
+import project.Message;
+
 class SocketListener extends Thread {
-	private BufferedReader netIn;
+	private ObjectInputStream netIn;
 	private Socket socket;
 	private Collection<String> inQueue;
 	
-	public SocketListener(Socket socket, BufferedReader in, Collection<String> inQueue) {
+	public SocketListener(Socket socket, ObjectInputStream in, Collection<String> inQueue) {
 		this.netIn = in;
 		this.socket = socket;
 		this.inQueue = inQueue;
@@ -19,13 +21,14 @@ class SocketListener extends Thread {
 	public void run() {
 		try {
 			while (true) { 		
-				String str = netIn.readLine(); 				// blocked...
+				Message str = (Message) netIn.readObject(); 				// blocked...
 				synchronized (inQueue) { 					// lukku!
-					inQueue.add(str);
+					inQueue.add(str.getContents());
 				}
 			}
 
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
 		} finally {
 			try {
 				if (!socket.isClosed()) {

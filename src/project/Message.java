@@ -1,13 +1,19 @@
 package project;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	String contents;
 	String to;	
 	Message(String m, String to){
 		contents = m;
 		this.to = to;
 	}
-	Message(String m){
+	public Message(String m){
 		contents = m;
 		this.to = null;
 	}

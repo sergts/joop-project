@@ -20,6 +20,8 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+import project.Message;
+
 
 public class Client {
 	
@@ -27,13 +29,13 @@ public class Client {
 		int port = 8888;
 		DirWatcher watcher = new DirWatcher("H:\\Projects\\test");
 		Socket socket;
-		BufferedReader netIn;
 		LinkedList<String> inQueue = new LinkedList<String>(); // FIFO
-		
+		ObjectInputStream netIn;
+		ObjectOutputStream netOut;
 		System.out.println("Mis on sinu nimi?");
 		String myName = new Scanner(System.in).nextLine();
 		
-		InetAddress servAddr = InetAddress.getByName("localhost");
+		InetAddress servAddr = InetAddress.getByName("localhost");  //choose ip for server to connect to
 
 		try {
 			socket = new Socket(servAddr, port); 				// JabberServer.PORT
@@ -44,14 +46,15 @@ public class Client {
 		try {
 			System.out.println("socket = " + socket);
 			
-			// Sokli sisend-väljund:
-			netIn = new BufferedReader(
-							new InputStreamReader(
-									socket.getInputStream()));
-			PrintWriter netOut = new PrintWriter(
-						new BufferedWriter(
-								new OutputStreamWriter(
-										socket.getOutputStream())), true);
+			
+			netOut = new ObjectOutputStream(
+					socket.getOutputStream());
+			netOut.flush();
+			netIn = new ObjectInputStream(
+					socket.getInputStream());
+			
+			
+			
 			
 			// Klaviatuurisisend:
 			BufferedReader stdin = new BufferedReader(
@@ -60,8 +63,9 @@ public class Client {
 			// Saabunud sõnumite kuulaja:
 			SocketListener l = new SocketListener(socket, netIn, inQueue);
 			l.start();
-
-			netOut.println(myName); // saadame oma nime serverisse
+			
+			netOut.reset();
+			netOut.writeObject(new Message(myName)); // saadame oma nime serverisse
 			
 			String msg;
 
@@ -72,8 +76,10 @@ public class Client {
 				msg = stdin.readLine(); 						// blocked...
 				// System.out.println( "Kuulaja olek = " + k.isAlive() ); 	// debugging...
 				
-				if (msg.length() > 0)
-					netOut.println(msg); 						// saadame oma sõnumi serverisse
+				if (msg.length() > 0){
+					netOut.reset();
+					netOut.writeObject(new Message(msg));						// saadame oma sõnumi serverisse
+				}
 				
 				if (!inQueue.isEmpty()) { 						// kas on midagi saabunud?
 					synchronized (inQueue) { 					// lukku !!!
@@ -86,7 +92,10 @@ public class Client {
 				}
 			} while (!msg.equals("END")); // END lõpetab kliendi töö
 
-		} finally {
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		finally {
 			System.out.println("closing...");
 			socket.close();
 		}

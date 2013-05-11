@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -16,8 +18,8 @@ class ClientSession extends Thread {
 	private Socket socket;
 	private OutboundMessages outQueue;
 	private ActiveSessions activeSessions;
-	private BufferedReader netIn;
-	private PrintWriter netOut;
+	public ObjectInputStream netIn;
+	public ObjectOutputStream netOut;
 	
 	
 	
@@ -26,22 +28,27 @@ class ClientSession extends Thread {
 		socket = s;
 		outQueue = out;
 		activeSessions = as;
-		netIn = new BufferedReader(
-					new InputStreamReader(
-						socket.getInputStream()));
-		netOut = new PrintWriter(
-					new BufferedWriter(
-						new OutputStreamWriter(
-							socket.getOutputStream())), true);
+		netOut = new ObjectOutputStream(
+				socket.getOutputStream());
+		netOut.flush();
+		netIn = new ObjectInputStream(
+				socket.getInputStream());
+		
+		
 		System.out.println( "ClientSession " + this + " stardib..." );
 		start();
 	}
 
 	public void run() {
 		try {
-			netOut.println("Welcome");
-			netOut.println("Enter your username:");
-			String name = netIn.readLine(); 	// blocked - ootab kliendi nime
+			/*
+			netOut.reset();
+			netOut.writeObject(new Message("Welcome"));
+			netOut.reset();
+			netOut.writeObject("Enter your username:");
+			*/
+			String name = ((Message)netIn.readObject()).getContents(); 	// blocked - ootab kliendi nime
+			
 			super.setName(name); 				// anname endale nime
 
 			activeSessions.addSession(this); 	// registreerime end aktiivsete seansside loendis
@@ -50,7 +57,7 @@ class ClientSession extends Thread {
 			outQueue.addMessage(new Message(str)); 			// teatame sellest kõigile
 
 			while (true) { 						// Kliendisessiooni elutsükli põhiosa ***
-				str = netIn.readLine(); 		// blocked...
+				str = ((Message)netIn.readObject()).getContents(); 		// blocked...
 				
 				
 				
@@ -78,7 +85,7 @@ class ClientSession extends Thread {
 												
 			outQueue.addMessage(new Message(getName() + " lahkus..."));
 			
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			outQueue.addMessage(new Message(getName() + " - avarii..."));
 		} finally {
 			try {
@@ -104,7 +111,8 @@ class ClientSession extends Thread {
 	public void sendMessage(String msg) {
 		try {
 			if (!socket.isClosed()) {
-				netOut.println(msg);
+				netOut.reset();
+				netOut.writeObject(new Message(msg));
 			} else {
 				throw new IOException(); 			// tegelikult: CALL catch()
 			}
