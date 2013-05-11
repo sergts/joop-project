@@ -1,4 +1,4 @@
-package project;
+package project.client;
 
 import java.util.*;
 import java.io.*;

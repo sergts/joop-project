@@ -39,7 +39,7 @@ class Broadcaster extends Thread {
 						
 						
 						String str = msg.contents;
-						
+						/*
 						for(ClientSession sess : activeSessions.getSessions()){
 							if(sess.getName().equals(str.split(" ")[3])){
 								for(File f : sess.watcher.getMap().keySet()){
@@ -56,11 +56,12 @@ class Broadcaster extends Thread {
 								}
 							}
 						}
-						
+						*/
 						
 					}
 					else if (msg.contents.equals("FILES") && msg.to.equals(cli.getName())) { 
 						String files = "";
+						/*
 						for(ClientSession sess : activeSessions.getSessions()){
 							cli.sendMessage(sess.getName() + " : ");
 							for(File f : sess.watcher.getMap().keySet()){
@@ -68,7 +69,7 @@ class Broadcaster extends Thread {
 							}
 						}
 						//cli.sendMessage(files);
-						
+						*/
 					}
 					else if (msg.to == null) { // üldlevi e. broadcast-sõnum
 						cli.sendMessage(msg.contents);

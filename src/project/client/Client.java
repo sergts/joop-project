@@ -25,7 +25,7 @@ public class Client {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		int port = 8888;
-		
+		DirWatcher watcher = new DirWatcher("H:\\Projects\\test");
 		Socket socket;
 		BufferedReader netIn;
 		LinkedList<String> inQueue = new LinkedList<String>(); // FIFO

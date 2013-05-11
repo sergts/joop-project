@@ -18,11 +18,11 @@ class ClientSession extends Thread {
 	private ActiveSessions activeSessions;
 	private BufferedReader netIn;
 	private PrintWriter netOut;
-	public DirWatcher watcher;
+	
 	
 	
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
-		//watcher = new DirWatcher("");
+		
 		socket = s;
 		outQueue = out;
 		activeSessions = as;
@@ -63,9 +63,9 @@ class ClientSession extends Thread {
 					break;
 				}
 				
-				if(str.split(" ")[0].equals("SHARE")) watcher = new DirWatcher(str.split(" ")[1]);
+				//if(str.split(" ")[0].equals("SHARE")) watcher = new DirWatcher(str.split(" ")[1]);
 				
-				else if(str.equals("FILES")) outQueue.addMessage(new Message("FILES", this.getName()));
+				if(str.equals("FILES")) outQueue.addMessage(new Message("FILES", this.getName()));
 				
 				else if(str.equals("WHO")) outQueue.addMessage(new Message("WHO", this.getName()));
 				
@@ -87,6 +87,7 @@ class ClientSession extends Thread {
 		}
 	}
 	
+	/*
 	public void sendFile(String file, int port){
 		new FileSender(file, port);
 	}
@@ -97,7 +98,7 @@ class ClientSession extends Thread {
 	public String getIP() throws UnknownHostException{
 		return InetAddress.getLocalHost().getHostAddress();
 	}
-	
+	*/
 	
 	
 	public void sendMessage(String msg) {
