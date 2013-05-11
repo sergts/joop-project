@@ -1,5 +1,6 @@
 package project.client;
 
+import java.awt.TrayIcon.MessageType;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -14,75 +15,94 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-
-
 import java.net.*;
 import java.io.*;
 import java.util.*;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import project.Message;
 
-
 public class Client {
-	
-	public static void main(String[] args) throws IOException, InterruptedException {
+
+	public static void main(String[] args) throws IOException,
+			InterruptedException {
 		int port = 8888;
-		DirWatcher watcher = new DirWatcher("H:\\Projects\\test");
+		DirWatcher watcher = new DirWatcher(
+				"C:\\Users\\Roman\\Documents\\book\\IT");
 		Socket socket;
 		LinkedList<String> inQueue = new LinkedList<String>(); // FIFO
 		ObjectInputStream netIn;
 		ObjectOutputStream netOut;
 		System.out.println("Mis on sinu nimi?");
 		String myName = new Scanner(System.in).nextLine();
-		
-		InetAddress servAddr = InetAddress.getByName("localhost");  //choose ip for server to connect to
+
+		InetAddress servAddr = InetAddress.getByName("82.147.186.77");// choose
+																		// ip
+																		// for
+																		// server
+																		// to
+																		// connect
+																		// to
 
 		try {
-			socket = new Socket(servAddr, port); 				// JabberServer.PORT
+			socket = new Socket(servAddr, port); // JabberServer.PORT
 		} catch (IOException e) {
-			System.out.println("Sry - server pole nähtav :(((");
+			System.out.println("Sry - server pole nï¿½htav :(((");
 			return;
 		}
 		try {
 			System.out.println("socket = " + socket);
-			
-			
-			netOut = new ObjectOutputStream(
-					socket.getOutputStream());
-			netOut.flush();
-			netIn = new ObjectInputStream(
-					socket.getInputStream());
-			
-			
-			
-			
-			// Klaviatuurisisend:
-			BufferedReader stdin = new BufferedReader(
-					new InputStreamReader(System.in));
 
-			// Saabunud sõnumite kuulaja:
+			netOut = new ObjectOutputStream(socket.getOutputStream());
+			netOut.flush();
+			netIn = new ObjectInputStream(socket.getInputStream());
+
+			// Klaviatuurisisend:
+			BufferedReader stdin = new BufferedReader(new InputStreamReader(
+					System.in));
+
+			// Saabunud sï¿½numite kuulaja:
 			SocketListener l = new SocketListener(socket, netIn, inQueue);
 			l.start();
-			
+
 			netOut.reset();
-			netOut.writeObject(new Message(myName)); // saadame oma nime serverisse
-			
+			netOut.writeObject(new Message(myName, project.MessageType.TEXT)); // saadame
+																				// oma
+																				// nime
+																				// serverisse
+
 			String msg;
 
-			do { // JabberClient elutsükli põhiosa **********************
-				System.out.println("Sisesta sõnum ja vajuta ENTER; lõpetamiseks toksi END: ");
-				System.out.println("Saabunud sõnumite lugemiseks vajuta ENTER");
-				
-				msg = stdin.readLine(); 						// blocked...
-				// System.out.println( "Kuulaja olek = " + k.isAlive() ); 	// debugging...
-				
-				if (msg.length() > 0){
+			do { // JabberClient elutsï¿½kli pï¿½hiosa **********************
+				System.out
+						.println("Sisesta sï¿½num ja vajuta ENTER; lï¿½petamiseks toksi END: ");
+				System.out.println("Saabunud sï¿½numite lugemiseks vajuta ENTER");
+
+				msg = stdin.readLine(); // blocked...
+				// System.out.println( "Kuulaja olek = " + k.isAlive() ); //
+				// debugging...
+
+				if (msg.length() > 0) {
 					netOut.reset();
-					netOut.writeObject(new Message(msg));						// saadame oma sõnumi serverisse
+					if (msg.equals("UPDATE")) {
+						Message m = new Message("", project.MessageType.UPDATE);
+						m.setFilesInCurrentDirectory(watcher
+								.getFilesInCurrentDirectory());
+						netOut.writeObject(m);
+					}
+					if (msg.equalsIgnoreCase("END")) {
+						netOut.writeObject(new Message("END",
+								project.MessageType.END));
+					}
+
+					else{
+						netOut.writeObject(new Message(msg, project.MessageType.TEXT)); // saadame oma sï¿½numi
+					}								// serverisse
 				}
-				
-				if (!inQueue.isEmpty()) { 						// kas on midagi saabunud?
-					synchronized (inQueue) { 					// lukku !!!
+
+				if (!inQueue.isEmpty()) { // kas on midagi saabunud?
+					synchronized (inQueue) { // lukku !!!
 						Iterator<String> incoming = inQueue.iterator();
 						while (incoming.hasNext()) {
 							System.out.println(">> " + incoming.next());
@@ -90,12 +110,11 @@ public class Client {
 						}
 					}
 				}
-			} while (!msg.equals("END")); // END lõpetab kliendi töö
+			} while (!msg.equals("END")); // END lï¿½petab kliendi tï¿½ï¿½
 
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			System.out.println("closing...");
 			socket.close();
 		}

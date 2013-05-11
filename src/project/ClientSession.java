@@ -54,16 +54,28 @@ class ClientSession extends Thread {
 			activeSessions.addSession(this); 	// registreerime end aktiivsete seansside loendis
 
 			String str = name + " tuli sisse...";
-			outQueue.addMessage(new Message(str)); 			// teatame sellest kõigile
+			outQueue.addMessage(new Message(str, MessageType.TEXT)); 			// teatame sellest kõigile
 
+			ClientSessionLoop:
 			while (true) { 						// Kliendisessiooni elutsükli põhiosa ***
-				str = ((Message)netIn.readObject()).getContents(); 		// blocked...
+				//str = ((Message)netIn.readObject()).getContents(); 		// blocked...
+				
+				Message incomingMessage = (Message) netIn.readObject();
+				
+				// switch by message type and perform suitable action
+				switch (incomingMessage.getMessageType()){
+				
+				case END:
+					break ClientSessionLoop;
+				case UPDATE:
+					break;
+				default:	
+				
+				}
 				
 				
 				
-				
-				
-				if (str == null) {
+			/*	if (str == null) {
 					continue; 					// tuli EOF
 				}
 				if (str.equalsIgnoreCase("END")) {
@@ -80,13 +92,13 @@ class ClientSession extends Thread {
 				
 				else if(str.split(" ")[0].equals("TALK"))  outQueue.addMessage(new Message(this.getName() + " ütleb sulle: " + str.substring(5 + (str.split(" ")[1].length())), (str.split(" ")[1])));
 				else outQueue.addMessage(new Message(str, null));
-				
+				*/
 			} 									// **************************************
 												
-			outQueue.addMessage(new Message(getName() + " lahkus..."));
+			outQueue.addMessage(new Message((getName() + " lahkus..."), MessageType.TEXT));
 			
 		} catch (IOException | ClassNotFoundException e) {
-			outQueue.addMessage(new Message(getName() + " - avarii..."));
+			outQueue.addMessage(new Message((getName() + " - avarii..."),  MessageType.TEXT));
 		} finally {
 			try {
 				socket.close();
@@ -112,12 +124,12 @@ class ClientSession extends Thread {
 		try {
 			if (!socket.isClosed()) {
 				netOut.reset();
-				netOut.writeObject(new Message(msg));
+				netOut.writeObject(new Message(msg, MessageType.TEXT));
 			} else {
 				throw new IOException(); 			// tegelikult: CALL catch()
 			}
 		} catch (IOException eee) {
-			outQueue.addMessage(new Message(getName() + " - avarii..."));
+			outQueue.addMessage(new Message((getName() + " - avarii..."), MessageType.TEXT));
 			try {
 				socket.close();
 			} catch (IOException ee) {}

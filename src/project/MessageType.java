@@ -1,0 +1,6 @@
+package project;
+
+public enum MessageType {
+
+	TEXT, UPDATE, OPEN_DOWNLOAD_CONNECTION, OPEN_UPLOAD_CONNECTION, CONFIRMATION, WHO, END; 
+}
