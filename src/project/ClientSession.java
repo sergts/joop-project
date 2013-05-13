@@ -53,7 +53,7 @@ class ClientSession extends Thread {
 			netOut.writeObject("Enter your username:");
 			*/
 			
-			String ip = ((Message)netIn.readObject()).getContents();
+			ip = ((Message)netIn.readObject()).getContents();
 			
 			String name = ((Message)netIn.readObject()).getContents(); 	// blocked - ootab kliendi nime
 			
