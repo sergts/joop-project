@@ -24,11 +24,13 @@ import project.*;
 public class Client {
 	
 	private static DirWatcher watcher;
+	private static String directory;
+	private static int port;
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
-		int port = 8888;
-		watcher = new DirWatcher(
-				"H:\\Projects\\test");
+		port = 8888;
+		directory = "H:\\Projects\\test";
+		watcher = new DirWatcher(directory);
 		Socket socket;
 		LinkedList<String> inQueue = new LinkedList<String>(); // FIFO
 		ObjectInputStream netIn;
@@ -40,10 +42,11 @@ public class Client {
 		
 		
 		
-		System.out.println("Mis on sinu nimi?");
+		System.out.println("Enter your name: ");
 		String myName = new Scanner(System.in).nextLine();
 
-		InetAddress servAddr = InetAddress.getByName("localhost");// choose
+		
+		InetAddress servAddr = InetAddress.getByName("82.147.182.110");// choose
 																		// ip
 																		// for
 																		// server
@@ -72,17 +75,10 @@ public class Client {
 
 			// Saabunud s�numite kuulaja:
 			SocketListener l = new SocketListener(socket, netIn, inQueue, out);
-			l.start();
-			
-			out.addMessage(new Message(InetAddress.getLocalHost().getHostAddress(), MessageType.QUERY));
 			
 			
-/*	
-			netOut.reset();
-			netOut.writeObject(new Message(myName, MessageType.QUERY)); // saadame
-																				// oma
-																				// nime
-		*/																		// serverisse
+			out.addMessage(new Message(IpChecker.getIp(), MessageType.QUERY));
+			
 			out.addMessage(new Message(myName, MessageType.QUERY));
 
 			String msg;
@@ -125,7 +121,7 @@ public class Client {
 	}
 	
 	public static void downloadConn(String ip, String fileName, int port){
-		new FileReceiver(ip, fileName, port);
+		new FileReceiver(fileName, ip, port);
 	}
 	public static void uploadConn(String fileName, int port){
 		new FileSender(fileName, port);

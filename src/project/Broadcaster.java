@@ -47,12 +47,12 @@ class Broadcaster extends Thread {
 								for(String f : sess.files.keySet()){
 									
 									if(f.equals(str.split(" ")[1])){
-										String send = sess.files.get(f).getAbsolutePath() + " " + "8877"; //file name and port as string
+										String send = sess.files.get(f).getPath() + " " + "8877"; //file name and port as string
 										
 										
 										sess.sendMessage(new Message(send, MessageType.OPEN_UPLOAD_CONNECTION));
 										//ip + file name + port
-										String receive = sess.ip + " " + f + " " + "8877";
+										String receive = f + " " + sess.ip + " " + "8877";
 										
 										cli.sendMessage(new Message(receive, MessageType.OPEN_DOWNLOAD_CONNECTION));
 										

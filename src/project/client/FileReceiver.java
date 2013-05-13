@@ -11,14 +11,16 @@ public class FileReceiver extends Thread {
 	String fileName;
 	String ip;
 	int port;
-	public FileReceiver(String ip, String fileName, int port) {
+	public FileReceiver(String fileName, String ip, int port) {
 		this.fileName = fileName;
-		this.ip = ip; //82.147.183.139
+		this.ip = ip; 
 		this.port = port;
 		start();
 	}
     public void run() {
         try {
+        	System.out.println(ip + " " + port);
+        	Thread.sleep(500);
             Socket clientSocket = new Socket(ip, port);
             File outputFile = new File(fileName);
             System.out.println("Client: connected to server.");

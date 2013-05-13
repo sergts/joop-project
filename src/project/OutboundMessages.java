@@ -7,7 +7,7 @@ public class OutboundMessages {
 
 	public synchronized void addMessage(Message m) { 		// this lukku!
 		messages.add(m);
-		System.out.println(m.getContents() + " " + m.getMessageType());
+		//System.out.println(m.getContents() + " " + m.getMessageType());
 		this.notifyAll(); 
 		// Broadcaster.notify()
 		

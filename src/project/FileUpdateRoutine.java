@@ -8,12 +8,11 @@ public class FileUpdateRoutine extends Thread {
 		start();
 	}
 	public void run(){
-		s.sendMessage(new Message(MessageType.UPDATE));
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		while(true){
+			s.sendMessage(new Message(MessageType.UPDATE));
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {}
 		}
 	}
 	

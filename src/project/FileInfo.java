@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 public class FileInfo implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	long size;
 	String checkSum;
 	String absolutePath;
@@ -27,10 +31,7 @@ public class FileInfo implements Serializable {
 		return absolutePath;
 	}
 
-	public String getAbsolutePath() {
-		// TODO Auto-generated method stub
-		return absolutePath;
-	}
+	
 	
 	
 	

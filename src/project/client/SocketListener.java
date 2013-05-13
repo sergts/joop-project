@@ -20,6 +20,7 @@ class SocketListener extends Thread {
 		this.socket = socket;
 		this.inQueue = inQueue;
 		this.out = out;
+		start();
 	}
 
 	public void run() {
