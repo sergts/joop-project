@@ -140,7 +140,7 @@ class ClientSession extends Thread {
 				throw new IOException(); 			// tegelikult: CALL catch()
 			}
 		} catch (IOException eee) {
-			outQueue.addMessage(new Message((getName() + " - avarii..."), MessageType.LOCAL));
+			//outQueue.addMessage(new Message((getName() + " - avarii..."), MessageType.LOCAL));
 			try {
 				getSocket().close();
 			} catch (IOException ee) {}
