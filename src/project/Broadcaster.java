@@ -52,7 +52,7 @@ class Broadcaster extends Thread {
 										
 										sess.sendMessage(new Message(send, MessageType.OPEN_UPLOAD_CONNECTION));
 										//ip + file name + port
-										String receive = sess.getSocket().getInetAddress().toString().substring(1) + " " + f + " " + "8877";
+										String receive = sess.ip + " " + f + " " + "8877";
 										
 										cli.sendMessage(new Message(receive, MessageType.OPEN_DOWNLOAD_CONNECTION));
 										

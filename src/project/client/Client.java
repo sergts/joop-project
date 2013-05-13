@@ -73,7 +73,11 @@ public class Client {
 			// Saabunud s�numite kuulaja:
 			SocketListener l = new SocketListener(socket, netIn, inQueue, out);
 			l.start();
-/*
+			
+			out.addMessage(new Message(InetAddress.getLocalHost().getHostAddress(), MessageType.QUERY));
+			
+			
+/*	
 			netOut.reset();
 			netOut.writeObject(new Message(myName, MessageType.QUERY)); // saadame
 																				// oma

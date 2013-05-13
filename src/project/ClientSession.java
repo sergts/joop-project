@@ -22,6 +22,7 @@ class ClientSession extends Thread {
 	public ObjectInputStream netIn;
 	public ObjectOutputStream netOut;
 	public HashMap<String, FileInfo> files;
+	public String ip;
 	
 	
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
@@ -51,6 +52,9 @@ class ClientSession extends Thread {
 			netOut.reset();
 			netOut.writeObject("Enter your username:");
 			*/
+			
+			String ip = ((Message)netIn.readObject()).getContents();
+			
 			String name = ((Message)netIn.readObject()).getContents(); 	// blocked - ootab kliendi nime
 			
 			super.setName(name); 				// anname endale nime
