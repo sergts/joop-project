@@ -30,7 +30,7 @@ class Broadcaster extends Thread {
 					
 					else if(msg.contents.equals("WHO") && msg.to.equals(cli.getName())){
 						String who = "Who: ";
-						for(ClientSession sess : activeSessions.getSessions()) who += sess.getName() + " ";
+						for(ClientSession sess : activeSessions.getSessions()) who += sess.getName() + " " + sess.ip + " ";
 						cli.sendMessage(new Message(who, MessageType.QUERY));
 					} 
 					/*
@@ -47,11 +47,12 @@ class Broadcaster extends Thread {
 								for(String f : sess.files.keySet()){
 									
 									if(f.equals(str.split(" ")[1])){
+										
 										String send = sess.files.get(f).getPath() + " " + "8877"; //file name and port as string
 										
 										
 										sess.sendMessage(new Message(send, MessageType.OPEN_UPLOAD_CONNECTION));
-										//ip + file name + port
+										
 										String receive = f + " " + sess.ip + " " + "8877";
 										
 										cli.sendMessage(new Message(receive, MessageType.OPEN_DOWNLOAD_CONNECTION));

@@ -59,7 +59,7 @@ class SocketListener extends Thread {
 			String file = msg.getContents().split(" ")[1];
 			int port = Integer.parseInt(msg.getContents().split(" ")[2]);
 			System.out.println(msg.getContents());
-			Client.downloadConn(ip, file, port);
+			Client.downloadConn(file, ip,  port);
 			return true;
 		}
 		else if(msg.getMessageType() == MessageType.OPEN_UPLOAD_CONNECTION){

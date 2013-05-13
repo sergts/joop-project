@@ -18,11 +18,11 @@ public class FileSender extends Thread {
 	}
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
+        	ServerSocket serverSocket = new ServerSocket(port);
             File file = new File(fileName);
              
             System.out.println("Server: waiting for a client to connect.");
-             
+  
             Socket connectedSocket = serverSocket.accept();
             System.out.println("Server: a client has connected.");
             OutputStream out = connectedSocket.getOutputStream();
@@ -38,13 +38,13 @@ public class FileSender extends Thread {
             System.out.println("Server: finished streaming file "+ file + ", " + bytes + " bytes sent.");
              
             connectedSocket.close();
-             
             serverSocket.close();
             System.out.println("Server: finished.");
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
+        
     }
 
     

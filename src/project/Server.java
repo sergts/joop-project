@@ -30,7 +30,7 @@ public class Server {
 			} 
 
 		} finally {
-			System.out.println("Server lõpetas");
+			System.out.println("Server down");
 			serv.close();
 		}
 	}

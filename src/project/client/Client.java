@@ -46,7 +46,7 @@ public class Client {
 		String myName = new Scanner(System.in).nextLine();
 
 		
-		InetAddress servAddr = InetAddress.getByName("82.147.182.110");// choose
+		InetAddress servAddr = InetAddress.getByName("localhost");// choose
 																		// ip
 																		// for
 																		// server
@@ -77,7 +77,8 @@ public class Client {
 			SocketListener l = new SocketListener(socket, netIn, inQueue, out);
 			
 			
-			out.addMessage(new Message(IpChecker.getIp(), MessageType.QUERY));
+			//out.addMessage(new Message(IpChecker.getIp(), MessageType.QUERY));
+			out.addMessage(new Message(InetAddress.getLocalHost().getHostAddress(), MessageType.QUERY));
 			
 			out.addMessage(new Message(myName, MessageType.QUERY));
 
