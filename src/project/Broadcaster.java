@@ -26,10 +26,12 @@ class Broadcaster extends Thread {
 					if (!cli.isAlive()) {
 						active.remove(); 		// ;-)
 						
-					} else if(msg.contents.equals("WHO") && msg.to.equals(cli.getName())){
+					} 
+					
+					else if(msg.contents.equals("WHO") && msg.to.equals(cli.getName())){
 						String who = "Who: ";
 						for(ClientSession sess : activeSessions.getSessions()) who += sess.getName() + " ";
-						cli.sendMessage(who);
+						cli.sendMessage(new Message(who, MessageType.QUERY));
 					} 
 					/*
 					 * if message is DOWNLOAD <filename> FROM <username>, then scan all active users to find the one
@@ -39,42 +41,44 @@ class Broadcaster extends Thread {
 						
 						
 						String str = msg.contents;
-						/*
+						
 						for(ClientSession sess : activeSessions.getSessions()){
 							if(sess.getName().equals(str.split(" ")[3])){
-								for(File f : sess.watcher.getMap().keySet()){
-									if(f.getName().equals(str.split(" ")[1])){
-										try {
-											sess.sendFile(f.getCanonicalPath(), 8877);
-											cli.receiveFile(sess.getIP(), f.getName(), 8877);
-										} catch (IOException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
+								for(String f : sess.files.keySet()){
+									
+									if(f.equals(str.split(" ")[1])){
+										String send = sess.files.get(f).getAbsolutePath() + " " + "8877"; //file name and port as string
+										
+										
+										sess.sendMessage(new Message(send, MessageType.OPEN_UPLOAD_CONNECTION));
+										//ip + file name + port
+										String receive = sess.getSocket().getInetAddress().toString().substring(1) + " " + f + " " + "8877";
+										
+										cli.sendMessage(new Message(receive, MessageType.OPEN_DOWNLOAD_CONNECTION));
 										
 									}
 								}
 							}
 						}
-						*/
+						
 						
 					}
 					else if (msg.contents.equals("FILES") && msg.to.equals(cli.getName())) { 
 						String files = "";
-						/*
+						
 						for(ClientSession sess : activeSessions.getSessions()){
-							cli.sendMessage(sess.getName() + " : ");
-							for(File f : sess.watcher.getMap().keySet()){
-								cli.sendMessage( "   " + f.getName() );
+							files += sess.getName() + " : \n";
+							for(String f : sess.files.keySet()){
+								files +=  "   " + f + "\n";
 							}
 						}
-						//cli.sendMessage(files);
-						*/
+						cli.sendMessage(new Message(files, MessageType.QUERY));
+						
 					}
 					else if (msg.to == null) { // üldlevi e. broadcast-sõnum
-						cli.sendMessage(msg.contents);
+						cli.sendMessage(new Message(msg.contents, MessageType.QUERY));
 					} else if ( msg.to.equals(cli.getName()) ) {
-					cli.sendMessage(msg.contents); // ainult konkreetsele adressaadile
+						cli.sendMessage(new Message(msg.contents, MessageType.QUERY) ); // ainult konkreetsele adressaadile
 					}
 					
 					

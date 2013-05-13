@@ -12,7 +12,7 @@ import project.FileInfo;
 public class DirWatcher extends Thread {
 	private String path;
 	private File filesArray[];
-	private ConcurrentHashMap<File, Long> dir = new ConcurrentHashMap<File, Long>();
+	private HashMap<File, Long> dir = new HashMap<File, Long>();
 
 	public DirWatcher(String path) {
 		this(path, "");
@@ -31,7 +31,7 @@ public class DirWatcher extends Thread {
 		start();
 	}
 
-	public ConcurrentHashMap<File, Long> getMap() {
+	public HashMap<File, Long> getMap() {
 		return dir;
 	}
 
@@ -59,7 +59,7 @@ public class DirWatcher extends Thread {
 			}
 
 			// now check for deleted files
-			Set<File> ref = dir.keySet();
+			Set ref = ((HashMap)dir.clone()).keySet();
 			ref.removeAll((Set<File>) checkedFiles);
 			Iterator<File> it = ref.iterator();
 			while (it.hasNext()) {
@@ -77,7 +77,8 @@ public class DirWatcher extends Thread {
 		}
 	}
 
-	public synchronized HashMap<String, FileInfo> getFilesInCurrentDirectory() {
+	
+	public HashMap<String, FileInfo> getFilesInCurrentDirectory() {
 
 		HashMap<String, FileInfo> filesInDirectoryMap = new HashMap<String, FileInfo>();
 

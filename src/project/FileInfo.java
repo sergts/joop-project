@@ -1,6 +1,8 @@
 package project;
 
-public class FileInfo {
+import java.io.Serializable;
+
+public class FileInfo implements Serializable {
 
 	long size;
 	String checkSum;
@@ -22,6 +24,11 @@ public class FileInfo {
 	}
 
 	public String getPath() {
+		return absolutePath;
+	}
+
+	public String getAbsolutePath() {
+		// TODO Auto-generated method stub
 		return absolutePath;
 	}
 	

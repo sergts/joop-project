@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 
 
@@ -20,20 +21,23 @@ class ClientSession extends Thread {
 	private ActiveSessions activeSessions;
 	public ObjectInputStream netIn;
 	public ObjectOutputStream netOut;
-	
+	public HashMap<String, FileInfo> files;
 	
 	
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
 		
-		socket = s;
+		setSocket(s);
 		outQueue = out;
 		activeSessions = as;
 		netOut = new ObjectOutputStream(
-				socket.getOutputStream());
+				getSocket().getOutputStream());
 		netOut.flush();
 		netIn = new ObjectInputStream(
-				socket.getInputStream());
+				getSocket().getInputStream());
+		files = new HashMap<String, FileInfo>();
+		files.put("null", new FileInfo(0 ,null, null));
 		
+		new FileUpdateRoutine(this);
 		
 		System.out.println( "ClientSession " + this + " stardib..." );
 		start();
@@ -54,7 +58,7 @@ class ClientSession extends Thread {
 			activeSessions.addSession(this); 	// registreerime end aktiivsete seansside loendis
 
 			String str = name + " tuli sisse...";
-			outQueue.addMessage(new Message(str, MessageType.TEXT)); 			// teatame sellest kõigile
+			outQueue.addMessage(new Message(str, MessageType.QUERY)); 			// teatame sellest kõigile
 
 			ClientSessionLoop:
 			while (true) { 						// Kliendisessiooni elutsükli põhiosa ***
@@ -62,15 +66,18 @@ class ClientSession extends Thread {
 				
 				Message incomingMessage = (Message) netIn.readObject();
 				
-				// switch by message type and perform suitable action
-				switch (incomingMessage.getMessageType()){
-				
-				case END:
-					break ClientSessionLoop;
-				case UPDATE:
-					break;
-				default:	
-				
+				if(incomingMessage.getMessageType() == MessageType.QUERY){
+					str = incomingMessage.getContents();
+					if(str.equalsIgnoreCase("END")) break;
+					else if(str.equals("FILES")) outQueue.addMessage(new Message("FILES", this.getName(), MessageType.LOCAL));
+					else if(str.equals("WHO")) outQueue.addMessage(new Message("WHO", this.getName(), MessageType.LOCAL));
+					else if(str.split(" ")[0].equals("DOWNLOAD")) outQueue.addMessage(new Message(str, this.getName(), MessageType.LOCAL));
+					else if(str.split(" ")[0].equals("TALK")) 
+						outQueue.addMessage(new Message(this.getName() + " tells you: " + str.substring(5 + (str.split(" ")[1].length())), (str.split(" ")[1]), MessageType.LOCAL));
+					else outQueue.addMessage(new Message(str, null, MessageType.LOCAL ));
+				}
+				else if(incomingMessage.getMessageType() == MessageType.UPDATE){
+					files = incomingMessage.getFilesInCurrentDirectory();
 				}
 				
 				
@@ -95,13 +102,13 @@ class ClientSession extends Thread {
 				*/
 			} 									// **************************************
 												
-			outQueue.addMessage(new Message((getName() + " lahkus..."), MessageType.TEXT));
+			outQueue.addMessage(new Message((getName() + " lahkus..."), MessageType.QUERY));
 			
 		} catch (IOException | ClassNotFoundException e) {
-			outQueue.addMessage(new Message((getName() + " - avarii..."),  MessageType.TEXT));
+			outQueue.addMessage(new Message((getName() + " - avarii..."),  MessageType.QUERY));
 		} finally {
 			try {
-				socket.close();
+				getSocket().close();
 			} catch (IOException e) {}
 		}
 	}
@@ -120,19 +127,27 @@ class ClientSession extends Thread {
 	*/
 	
 	
-	public void sendMessage(String msg) {
+	public void sendMessage(Message msg) {
 		try {
-			if (!socket.isClosed()) {
+			if (!getSocket().isClosed()) {
 				netOut.reset();
-				netOut.writeObject(new Message(msg, MessageType.TEXT));
+				netOut.writeObject(msg);
 			} else {
 				throw new IOException(); 			// tegelikult: CALL catch()
 			}
 		} catch (IOException eee) {
-			outQueue.addMessage(new Message((getName() + " - avarii..."), MessageType.TEXT));
+			outQueue.addMessage(new Message((getName() + " - avarii..."), MessageType.LOCAL));
 			try {
-				socket.close();
+				getSocket().close();
 			} catch (IOException ee) {}
 		}
+	}
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public void setSocket(Socket socket) {
+		this.socket = socket;
 	}
 }

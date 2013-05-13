@@ -2,12 +2,12 @@ package project;
 
 import java.util.LinkedList;
 
-class OutboundMessages {
+public class OutboundMessages {
 	private LinkedList<Message> messages = new LinkedList<Message>(); 				// Saatmata sõnumite FIFO
 
 	public synchronized void addMessage(Message m) { 		// this lukku!
 		messages.add(m);
-		System.out.println(m);
+		System.out.println(m.getContents() + " " + m.getMessageType());
 		this.notifyAll(); 
 		// Broadcaster.notify()
 		
