@@ -5,8 +5,8 @@ import java.io.ObjectOutputStream;
 
 
 
-import project.Message;
 import project.OutboundMessages;
+import project.messages.Message;
 
 public class ClientMessageSender extends Thread {
 	

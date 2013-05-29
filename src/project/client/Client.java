@@ -20,31 +20,38 @@ import java.util.*;
 
 
 import project.*;
+import project.messages.*;
 
-public class Client {
+
+public class Client extends Thread {
 	
-	private static DirWatcher watcher;
-	private static String directory;
-	private static int port;
+	private DirWatcher watcher;
+	private String directory = "H:\\Projects\\test2";
+	private int port = 8888;
+	private OutboundMessages out;
+	private Socket socket;
+	private LinkedList<String> inQueue;
+	private ObjectInputStream netIn;
+	private ObjectOutputStream netOut;
 	
-	public static void main(String[] args) throws IOException, InterruptedException {
-		port = 8888;
-		directory = "H:\\Projects\\test";
+	
+	public Client(int port, String dir){
+		this.port = port;
+		directory = dir;
+		start();
+	}
+	
+	
+	
+	public  void run() {
+		
 		watcher = new DirWatcher(directory);
-		Socket socket;
-		LinkedList<String> inQueue = new LinkedList<String>(); // FIFO
-		ObjectInputStream netIn;
-		ObjectOutputStream netOut;
-		OutboundMessages out = new OutboundMessages();
-		
-		
-		
-		
+		setInQueue(new LinkedList<String>()); 
+		setOut(new OutboundMessages());
 		
 		
 		System.out.println("Enter your name: ");
 		String myName = new Scanner(System.in).nextLine();
-
 		
 		InetAddress servAddr = InetAddress.getByName("localhost");// choose
 																		// ip
@@ -55,32 +62,29 @@ public class Client {
 																		// to
 
 		try {
-			socket = new Socket(servAddr, port); // JabberServer.PORT
+			setSocket(new Socket(servAddr, port)); // JabberServer.PORT
 		} catch (IOException e) {
 			System.out.println("Server not visible");
 			return;
 		}
 		try {
-			System.out.println("socket = " + socket);
+			System.out.println("socket = " + getSocket());
 
-			netOut = new ObjectOutputStream(socket.getOutputStream());
+			netOut = new ObjectOutputStream(getSocket().getOutputStream());
 			netOut.flush();
-			netIn = new ObjectInputStream(socket.getInputStream());
+			setNetIn(new ObjectInputStream(getSocket().getInputStream()));
 			
-			new ClientMessageSender(out, netOut);
+			new ClientMessageSender(getOut(), netOut);
 			
-			// Klaviatuurisisend:
-			BufferedReader stdin = new BufferedReader(new InputStreamReader(
-					System.in));
+			BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
-			// Saabunud s�numite kuulaja:
-			SocketListener l = new SocketListener(socket, netIn, inQueue, out);
+			SocketListener l = new SocketListener(this);
 			
 			
 			//out.addMessage(new Message(IpChecker.getIp(), MessageType.QUERY));
-			out.addMessage(new Message(InetAddress.getLocalHost().getHostAddress(), MessageType.QUERY));
+			getOut().addMessage(new Message(InetAddress.getLocalHost().getHostAddress(), MessageType.QUERY));
 			
-			out.addMessage(new Message(myName, MessageType.QUERY));
+			getOut().addMessage(new Message(myName, MessageType.QUERY));
 
 			String msg;
 
@@ -93,13 +97,13 @@ public class Client {
 						System.out.println(FileUtils.getFilesFormatted(watcher.getMap()));
 					}
 					else
-						out.addMessage(new Message(msg, MessageType.QUERY));
+						getOut().addMessage(new Message(msg, MessageType.QUERY));
 					
 				}
 
-				if (!inQueue.isEmpty()) { // kas on midagi saabunud?
-					synchronized (inQueue) { // lukku !!!
-						Iterator<String> incoming = inQueue.iterator();
+				if (!getInQueue().isEmpty()) { // kas on midagi saabunud?
+					synchronized (getInQueue()) { // lukku !!!
+						Iterator<String> incoming = getInQueue().iterator();
 						while (incoming.hasNext()) {
 							System.out.println(">> " + incoming.next());
 							incoming.remove();
@@ -112,20 +116,68 @@ public class Client {
 			e.printStackTrace();
 		} finally {
 			System.out.println("closing...");
-			socket.close();
+			getSocket().close();
 		}
 	}
 	
-	public static DirWatcher getWatcher(){
+	public DirWatcher getWatcher(){
 		return watcher;
 		
 	}
 	
-	public static void downloadConn(String ip, String fileName, int port){
+	public void downloadConn(String ip, String fileName, int port){
 		new FileReceiver(fileName, ip, port);
 	}
-	public static void uploadConn(String fileName, int port){
+	public void uploadConn(String fileName, int port){
 		new FileSender(fileName, port);
+	}
+
+
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+
+
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+	}
+
+
+
+	public ObjectInputStream getNetIn() {
+		return netIn;
+	}
+
+
+
+	public void setNetIn(ObjectInputStream netIn) {
+		this.netIn = netIn;
+	}
+
+
+
+	public LinkedList<String> getInQueue() {
+		return inQueue;
+	}
+
+
+
+	public void setInQueue(LinkedList<String> inQueue) {
+		this.inQueue = inQueue;
+	}
+
+
+
+	public OutboundMessages getOut() {
+		return out;
+	}
+
+
+
+	public void setOut(OutboundMessages out) {
+		this.out = out;
 	}
 
 }

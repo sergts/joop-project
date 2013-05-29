@@ -2,6 +2,8 @@ package project;
 
 import java.util.LinkedList;
 
+import project.messages.Message;
+
 public class OutboundMessages {
 	private LinkedList<Message> messages = new LinkedList<Message>(); 				// Saatmata sõnumite FIFO
 

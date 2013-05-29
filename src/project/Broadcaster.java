@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import project.messages.Message;
+import project.messages.MessageType;
+
 class Broadcaster extends Thread {
 	private ActiveSessions activeSessions;
 	private OutboundMessages outQueue;
@@ -28,15 +31,36 @@ class Broadcaster extends Thread {
 						
 					} 
 					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					/*
 					else if(msg.contents.equals("WHO") && msg.to.equals(cli.getName())){
 						String who = "Who: ";
 						for(ClientSession sess : activeSessions.getSessions()) who += sess.getName() + " " + sess.ip + " ";
 						cli.sendMessage(new Message(who, MessageType.QUERY));
 					} 
+					*/
 					/*
 					 * if message is DOWNLOAD <filename> FROM <username>, then scan all active users to find the one
 					 * you want to download from, check if he has this file, and open connections between two users.
 					 */
+					/*
 					else if(msg.contents.split(" ")[0].equals("DOWNLOAD") && msg.to.equals(cli.getName())){
 						
 						
@@ -64,6 +88,8 @@ class Broadcaster extends Thread {
 						
 						
 					}
+					*/
+					/*
 					else if (msg.contents.equals("FILES") && msg.to.equals(cli.getName())) { 
 						String files = "";
 						
@@ -81,6 +107,7 @@ class Broadcaster extends Thread {
 					} else if ( msg.to.equals(cli.getName()) ) {
 						cli.sendMessage(new Message(msg.contents, MessageType.QUERY) ); // ainult konkreetsele adressaadile
 					}
+					*/
 					
 					
 				}

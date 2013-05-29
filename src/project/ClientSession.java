@@ -13,9 +13,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
+import project.messages.Message;
+import project.messages.MessageType;
 
 
-class ClientSession extends Thread {
+
+public class ClientSession extends Thread {
 	private Socket socket;
 	private OutboundMessages outQueue;
 	private ActiveSessions activeSessions;
@@ -62,7 +65,7 @@ class ClientSession extends Thread {
 			activeSessions.addSession(this); 	// registreerime end aktiivsete seansside loendis
 
 			String str = name + " tuli sisse...";
-			outQueue.addMessage(new Message(str, MessageType.QUERY)); 			// teatame sellest kõigile
+			outQueue.addMessage(new Message(str)); 			// teatame sellest kõigile
 
 			ClientSessionLoop:
 			while (true) { 						// Kliendisessiooni elutsükli põhiosa ***
@@ -70,6 +73,10 @@ class ClientSession extends Thread {
 				
 				Message incomingMessage = (Message) netIn.readObject();
 				
+				incomingMessage.action(this);
+				
+				
+				/*
 				if(incomingMessage.getMessageType() == MessageType.QUERY){
 					str = incomingMessage.getContents();
 					if(str.equalsIgnoreCase("END")) break;
@@ -83,7 +90,7 @@ class ClientSession extends Thread {
 				else if(incomingMessage.getMessageType() == MessageType.UPDATE){
 					files = incomingMessage.getFilesInCurrentDirectory();
 				}
-				
+				*/
 				
 				
 			/*	if (str == null) {
@@ -106,10 +113,10 @@ class ClientSession extends Thread {
 				*/
 			} 									// **************************************
 												
-			outQueue.addMessage(new Message((getName() + " lahkus..."), MessageType.QUERY));
+			outQueue.addMessage(new Message((getName() + " lahkus...")));
 			
 		} catch (IOException | ClassNotFoundException e) {
-			outQueue.addMessage(new Message((getName() + " - avarii..."),  MessageType.QUERY));
+			outQueue.addMessage(new Message((getName() + " - avarii...")));
 		} finally {
 			try {
 				getSocket().close();

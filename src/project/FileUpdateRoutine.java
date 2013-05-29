@@ -1,5 +1,7 @@
 package project;
 
+import project.messages.*;
+
 public class FileUpdateRoutine extends Thread {
 	
 	private ClientSession s;
@@ -9,7 +11,7 @@ public class FileUpdateRoutine extends Thread {
 	}
 	public void run(){
 		while(true){
-			s.sendMessage(new Message(MessageType.UPDATE));
+			s.sendMessage(new UpdFilesMsg());
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {}
