@@ -2,6 +2,8 @@ package project.messages;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+
 import project.FileInfo;
 import project.ClientSession;
 import project.client.Client;
@@ -17,13 +19,13 @@ public abstract class Message implements Serializable {
 	
 	String contents;
 	String to;
-	HashMap<String, FileInfo> files;
+	ConcurrentHashMap<String, FileInfo> files;
 	
 	
-	public HashMap<String, FileInfo> getFiles() {
+	public ConcurrentHashMap<String, FileInfo> getFiles() {
 		return files;
 	}
-	public void setFiles(HashMap<String, FileInfo> files) {
+	public void setFiles(ConcurrentHashMap<String, FileInfo> files) {
 		this.files = files;
 	}
 	
@@ -42,7 +44,7 @@ public abstract class Message implements Serializable {
 		this.to = null;
 		
 	}
-	public Message(HashMap<String, FileInfo> files){
+	public Message(ConcurrentHashMap<String, FileInfo> files){
 		this.files = files;
 		contents = null;
 		this.to = null;

@@ -18,15 +18,15 @@ class Broadcaster extends Thread {
 
 	public void run() {
 		while (true) {  
-			Message msg = outQueue.getMessage(); 				// blocked
-			synchronized (activeSessions) { 				// ActiveSessions lukku!
+			Message msg = outQueue.getMessage(); 				
+			synchronized (activeSessions) { 				
 				Iterator<ClientSession> active = activeSessions.iterator();
 				
 				while (active.hasNext()) {
 					ClientSession cli = active.next();
 					
 					if (!cli.isAlive()) {
-						active.remove(); 		// ;-)
+						active.remove(); 		
 						
 					} 
 					

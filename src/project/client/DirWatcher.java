@@ -5,6 +5,7 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 
 import project.FileInfo;
@@ -16,7 +17,7 @@ public class DirWatcher extends Thread {
 	private String path;
 	private File filesArray[];
 	private HashMap<File, Long> dir = new HashMap<File, Long>();
-	private HashMap<String, FileInfo> fileNames;
+	private ConcurrentHashMap<String, FileInfo> fileNames;
 	private File directory;
 	private long lastmod;
 	private Client client;
@@ -26,6 +27,8 @@ public class DirWatcher extends Thread {
 	public DirWatcher(String path, Client client) {
 		this.path = path;
 		directory = new File(path);
+		fileNames =  getFilesFormatted(directory.listFiles());
+		client.getOut().addMessage(new UpdFilesMsg(fileNames));
 		lastmod = directory.lastModified();
 		this.client = client;
 		//filesArray = new File(path).listFiles();
@@ -99,15 +102,15 @@ public class DirWatcher extends Thread {
 		}
 	}
 	
-	public HashMap<String, FileInfo> getFiles(){
+	public ConcurrentHashMap<String, FileInfo> getFiles(){
 		return fileNames;
 	}
 	
 	
 
-	public HashMap<String, FileInfo> getFilesFormatted(File[] files) {
+	public ConcurrentHashMap<String, FileInfo> getFilesFormatted(File[] files) {
 
-		HashMap<String, FileInfo> filesInDirectoryMap = new HashMap<String, FileInfo>();
+		ConcurrentHashMap<String, FileInfo> filesInDirectoryMap = new ConcurrentHashMap<String, FileInfo>();
 
 		for (File file : files) {
 			if(file.isFile() && (!file.getName().substring(file.getName().length() - 4).equals(".tmp"))){

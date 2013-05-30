@@ -4,24 +4,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-class ActiveSessions {
-	private Collection<ClientSession> sessionList 
-			= new ArrayList<ClientSession>(); // Jutustajate kollektsioon
+public class ActiveSessions {
+	private CopyOnWriteArrayList<ClientSession> sessionList 
+			= new CopyOnWriteArrayList<ClientSession>(); // 
 	
 	
 	
 	
-	public synchronized void addSession(ClientSession s) { 	// this lukku!
+	public synchronized void addSession(ClientSession s) { 	
 		sessionList.add(s);
 		System.out.println("Saabus uus klient: " + s);
 	}
 
-	public Iterator<ClientSession> iterator() { 			// kus sünkronriseeritakse? 
+	public Iterator<ClientSession> iterator() { 			 
 		return sessionList.iterator();
 	}
 	
-	public ArrayList<ClientSession> getSessions(){
-		return (ArrayList<ClientSession>) sessionList;
+	
+	public synchronized void removeSess(ClientSession sess){
+		sessionList.remove(sess);
 	}
 }

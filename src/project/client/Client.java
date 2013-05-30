@@ -48,7 +48,7 @@ public class Client extends Thread {
 	
 	public void run(){
 		
-		watcher = new DirWatcher(directory, this);
+		//watcher = new DirWatcher(directory, this);
 		setInQueue(new LinkedList<String>()); 
 		setOut(new OutboundMessages());
 		
@@ -82,7 +82,9 @@ public class Client extends Thread {
 			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
 			
 			out.addMessage(new InitName(myName));
-
+			
+			watcher = new DirWatcher(directory, this);
+			
 			String msg;
 
 			do { 
@@ -92,6 +94,9 @@ public class Client extends Thread {
 					
 					if(msg.equalsIgnoreCase("myfiles")){
 						System.out.println(watcher.getFiles());
+					}
+					else if(msg.equalsIgnoreCase("files")){
+						out.addMessage(new FilesQuery());
 					}
 					else
 						out.addMessage(new TextMsg(msg));

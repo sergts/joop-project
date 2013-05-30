@@ -1,6 +1,7 @@
 package project.messages;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import project.ClientSession;
 import project.FileInfo;
@@ -16,7 +17,7 @@ public class UpdFilesMsg extends Message {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public UpdFilesMsg(HashMap<String, FileInfo> files) {
+	public UpdFilesMsg(ConcurrentHashMap<String, FileInfo> files) {
 		super(files);
 	}
 	public UpdFilesMsg(){
@@ -25,7 +26,7 @@ public class UpdFilesMsg extends Message {
 
 	@Override
 	public void action(Client cli) {
-		cli.getOut().addMessage(new UpdFilesMsg(FileUtils.getFilesFormatted(cli.getWatcher().getMap())));
+		//cli.getOut().addMessage(new UpdFilesMsg( cli.getWatcher().getFilesFormatted(cli.getWatcher().getMap())  ));
 	}
 
 	@Override
