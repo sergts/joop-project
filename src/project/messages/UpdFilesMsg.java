@@ -19,6 +19,9 @@ public class UpdFilesMsg extends Message {
 	public UpdFilesMsg(HashMap<String, FileInfo> files) {
 		super(files);
 	}
+	public UpdFilesMsg(){
+		super();
+	}
 
 	@Override
 	public void action(Client cli) {

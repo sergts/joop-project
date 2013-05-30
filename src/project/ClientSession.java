@@ -13,8 +13,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 
-import project.messages.Message;
-import project.messages.MessageType;
+import project.messages.*;
+
 
 
 
@@ -26,6 +26,7 @@ public class ClientSession extends Thread {
 	public ObjectOutputStream netOut;
 	public HashMap<String, FileInfo> files;
 	public String ip;
+	public String name;
 	
 	
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
@@ -56,16 +57,16 @@ public class ClientSession extends Thread {
 			netOut.writeObject("Enter your username:");
 			*/
 			
-			ip = ((Message)netIn.readObject()).getContents();
+			((Message)netIn.readObject()).action(this);
 			
-			String name = ((Message)netIn.readObject()).getContents(); 	// blocked - ootab kliendi nime
+			((Message)netIn.readObject()).action(this); 	// blocked - ootab kliendi nime
 			
 			super.setName(name); 				// anname endale nime
 
 			activeSessions.addSession(this); 	// registreerime end aktiivsete seansside loendis
 
 			String str = name + " tuli sisse...";
-			outQueue.addMessage(new Message(str)); 			// teatame sellest kõigile
+			//outQueue.addMessage(new Message(str)); 			// teatame sellest kõigile
 
 			ClientSessionLoop:
 			while (true) { 						// Kliendisessiooni elutsükli põhiosa ***
@@ -113,10 +114,10 @@ public class ClientSession extends Thread {
 				*/
 			} 									// **************************************
 												
-			outQueue.addMessage(new Message((getName() + " lahkus...")));
+			//outQueue.addMessage(new TextMsg((getName() + " lahkus...")));
 			
 		} catch (IOException | ClassNotFoundException e) {
-			outQueue.addMessage(new Message((getName() + " - avarii...")));
+			outQueue.addMessage(new TextMsg((getName() + " - avarii...")));
 		} finally {
 			try {
 				getSocket().close();

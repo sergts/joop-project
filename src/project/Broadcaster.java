@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import project.messages.Message;
-import project.messages.MessageType;
 
 class Broadcaster extends Thread {
 	private ActiveSessions activeSessions;

@@ -40,12 +40,15 @@ public class Client extends Thread {
 		directory = dir;
 		start();
 	}
+	public Client(){
+		start();
+	}
 	
 	
 	
-	public  void run() {
+	public void run(){
 		
-		watcher = new DirWatcher(directory);
+		watcher = new DirWatcher(directory, this);
 		setInQueue(new LinkedList<String>()); 
 		setOut(new OutboundMessages());
 		
@@ -53,15 +56,9 @@ public class Client extends Thread {
 		System.out.println("Enter your name: ");
 		String myName = new Scanner(System.in).nextLine();
 		
-		InetAddress servAddr = InetAddress.getByName("localhost");// choose
-																		// ip
-																		// for
-																		// server
-																		// to
-																		// connect
-																		// to
 
 		try {
+			InetAddress servAddr = InetAddress.getByName("localhost");
 			setSocket(new Socket(servAddr, port)); // JabberServer.PORT
 		} catch (IOException e) {
 			System.out.println("Server not visible");
@@ -82,9 +79,9 @@ public class Client extends Thread {
 			
 			
 			//out.addMessage(new Message(IpChecker.getIp(), MessageType.QUERY));
-			getOut().addMessage(new Message(InetAddress.getLocalHost().getHostAddress(), MessageType.QUERY));
+			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
 			
-			getOut().addMessage(new Message(myName, MessageType.QUERY));
+			out.addMessage(new InitName(myName));
 
 			String msg;
 
@@ -94,10 +91,10 @@ public class Client extends Thread {
 				if (msg.length() > 0) {
 					
 					if(msg.equalsIgnoreCase("myfiles")){
-						System.out.println(FileUtils.getFilesFormatted(watcher.getMap()));
+						System.out.println(watcher.getFiles());
 					}
 					else
-						getOut().addMessage(new Message(msg, MessageType.QUERY));
+						out.addMessage(new TextMsg(msg));
 					
 				}
 
@@ -116,7 +113,9 @@ public class Client extends Thread {
 			e.printStackTrace();
 		} finally {
 			System.out.println("closing...");
-			getSocket().close();
+			try {
+				socket.close();
+			} catch (IOException e) {}
 		}
 	}
 	

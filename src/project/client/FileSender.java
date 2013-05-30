@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class FileSender extends Thread {
+public class FileSender extends Thread{
 	String fileName;
 	int port;
 	public FileSender(String file, int port) {
@@ -20,16 +20,13 @@ public class FileSender extends Thread {
         try {
         	ServerSocket serverSocket = new ServerSocket(port);
             File file = new File(fileName);
-             
             System.out.println("Server: waiting for a client to connect.");
-  
             Socket connectedSocket = serverSocket.accept();
             System.out.println("Server: a client has connected.");
             OutputStream out = connectedSocket.getOutputStream();
             InputStream in = new BufferedInputStream(new FileInputStream(file) );
-             
-         
-            int bytes = StreamUtil.streamCopy(in, out);
+            StreamUtil stream = new StreamUtil();
+            int bytes = stream.streamCopy(in, out);
              
             in.close();
             out.flush();

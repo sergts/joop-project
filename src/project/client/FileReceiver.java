@@ -22,15 +22,19 @@ public class FileReceiver extends Thread {
         	System.out.println(ip + " " + port);
         	Thread.sleep(500);
             Socket clientSocket = new Socket(ip, port);
-            File outputFile = new File(fileName);
+            File outputFile = new File(fileName + ".tmp");
             System.out.println("Client: connected to server.");
             InputStream in = clientSocket.getInputStream();
             OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile) );
              
-            int bytes = StreamUtil.streamCopy(in, out);
+            StreamUtil stream = new StreamUtil();
+            int bytes = stream.streamCopy(in, out);
+            
+            outputFile.renameTo(new File(fileName));
              
             System.out.println("Client: received " + outputFile + ", " + bytes + " bytes read.");
              
+            
             in.close();
             out.flush();
             out.close();

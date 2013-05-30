@@ -3,21 +3,21 @@ package project.messages;
 import project.ClientSession;
 import project.client.Client;
 
-public class TextMsg extends Message {
+public class InitIp extends Message {
 
-	public TextMsg(String string) {
-		super(string);
+	public InitIp(String hostAddress) {
+		super(hostAddress);
 	}
 
 	@Override
 	public void action(Client cli) {
-		cli.getInQueue().add(getContents());
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void action(ClientSession sess) {
-		// TODO Auto-generated method stub
+		sess.ip = getContents();
 		
 	}
 
