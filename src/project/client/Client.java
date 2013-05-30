@@ -25,6 +25,12 @@ import project.messages.*;
 
 public class Client extends Thread {
 	
+	private static final int DOWNLOAD_QUERY_LENGTH = 4;
+	private static final int DOWNLOAD_INDEX = 0;
+	private static final int FILENAME_INDEX = 1;
+	private static final int FROM_INDEX = 2;
+	private static final int USERNAME_INDEX = 3;
+	
 	private DirWatcher watcher;
 	private String directory = "H:\\Projects\\test2";
 	private int port = 8888;
@@ -98,8 +104,20 @@ public class Client extends Thread {
 					else if(msg.equalsIgnoreCase("files")){
 						out.addMessage(new FilesQuery());
 					}
-					else
+					else if (msg.split(" ").length == DOWNLOAD_QUERY_LENGTH
+							&& msg.split(" ")[DOWNLOAD_INDEX].equalsIgnoreCase("download")
+							&& msg.split(" ")[FROM_INDEX].equalsIgnoreCase("from")) {
+						
+						out.addMessage(new DownloadMessage(
+								                   msg.split(" ")[FILENAME_INDEX],
+								                   msg.split(" ")[USERNAME_INDEX]));
+
+					}
+					
+					else{
 						out.addMessage(new TextMsg(msg));
+					}
+					
 					
 				}
 
