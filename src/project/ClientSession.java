@@ -119,9 +119,4 @@ public class ClientSession extends Thread {
 	public void setSocket(Socket socket) {
 		this.socket = socket;
 	}
-
-	public ActiveSessions getActiveSessions() {
-		// TODO Auto-generated method stub
-		return activeSessions;
-	}
 }
