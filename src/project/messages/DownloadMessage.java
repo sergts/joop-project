@@ -29,8 +29,7 @@ public class DownloadMessage extends Message {
 	public void action(ClientSession sess) {
 
 		
-		Iterator<ClientSession> activeSessions = sess.getActiveSessions()
-				.iterator();
+		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 		while (activeSessions.hasNext()) {
 			ClientSession session = activeSessions.next();
 			if (session.getName().equals(this.to)) {

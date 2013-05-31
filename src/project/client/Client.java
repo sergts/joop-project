@@ -31,6 +31,7 @@ public class Client extends Thread {
 	private LinkedList<String> inQueue;
 	private ObjectInputStream netIn;
 	private ObjectOutputStream netOut;
+	private int state;
 
 
 	public Client(int port, String dir){
@@ -62,8 +63,6 @@ public class Client extends Thread {
 		}
 
 
-		System.out.println("Enter your name: ");
-		String myName = new Scanner(System.in).nextLine();
 
 
 		try {
@@ -86,11 +85,8 @@ public class Client extends Thread {
 
 			SocketListener l = new SocketListener(this);
 
-
-			//out.addMessage(new Message(IpChecker.getIp(), MessageType.QUERY));
 			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
-
-			out.addMessage(new InitName(myName));
+			initName();
 
 			watcher = new DirWatcher(directory, this);
 
@@ -232,6 +228,51 @@ public class Client extends Thread {
 		return false;
 		
 	}
+	
+	
+	
+	public void initName(){
+		String myName = "";
+		state = 0;
+		while(true){
+			if(state == 0){
+				state = 1;
+				
+				while(myName.length() == 0){
+					System.out.println("Enter your name: ");
+					myName = new Scanner(System.in).nextLine();
+				}
+				out.addMessage(new InitName(myName));
+				
+			}
+			else if(state == 1){
+				try {
+					Thread.currentThread();
+					Thread.sleep(100);
+				} catch (InterruptedException e) {}
+			}
+			else if(state == 2){
+				state = 1;
+				myName = "";
+				System.out.println("Name already in use");
+				while(myName.length() == 0){
+					System.out.println("Enter your name: ");
+					myName = new Scanner(System.in).nextLine();
+				}
+				out.addMessage(new InitName(myName));
+				
+			}
+			else if(state == 3){ //server answer sets state to 2 or 3, if 3 name is ok
+				System.out.println("Ok, your name is: " + myName);
+				break;
+			}
+		}
+	}
+	
+	public void setState(int s){
+		state = s;
+	}
+	
 	
 	
 

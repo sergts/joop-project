@@ -43,6 +43,8 @@ public class ClientSession extends Thread {
 		files = new ConcurrentHashMap<String, FileInfo>();
 		files.put("null", new FileInfo(0 ,null, null));
 		
+		name = null;
+		
 		//new FileUpdateRoutine(this);
 		
 		System.out.println( "ClientSession " + this + " stardib..." );
@@ -51,26 +53,22 @@ public class ClientSession extends Thread {
 
 	public void run() {
 		try {
-			/*
-			netOut.reset();
-			netOut.writeObject(new Message("Welcome"));
-			netOut.reset();
-			netOut.writeObject("Enter your username:");
-			*/
 			
-			((Message)netIn.readObject()).action(this);
 			
-			((Message)netIn.readObject()).action(this); 	// blocked - ootab kliendi nime
+			while(name == null){
+				((Message)netIn.readObject()).action(this);
+			}
+			
 			
 			super.setName(name); 				// anname endale nime
 
 			activeSessions.addSession(this); 	// registreerime end aktiivsete seansside loendis
 
-			String str = name + " tuli sisse...";
+			//String str = name + " tuli sisse...";
 			//outQueue.addMessage(new Message(str)); 			// teatame sellest kõigile
 
 			
-			while (true) { 						
+			while (socket.isConnected()) { 						
 				 		
 				
 				Message incomingMessage = (Message) netIn.readObject();
@@ -81,11 +79,12 @@ public class ClientSession extends Thread {
 				
 			} 									
 												
-			//outQueue.addMessage(new TextMsg((getName() + " lahkus...")));
+			
 			
 		} catch (IOException | ClassNotFoundException e) {
-			outQueue.addMessage(new TextMsg((getName() + " - avarii...")));
+			System.out.println(getName() + " crashed");
 		} finally {
+			System.out.println(getName() + " leaves");
 			activeSessions.removeSess(this);
 			try {
 				getSocket().close();

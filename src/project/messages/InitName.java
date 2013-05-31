@@ -1,5 +1,7 @@
 package project.messages;
 
+import java.util.Iterator;
+
 import project.ClientSession;
 import project.client.Client;
 
@@ -11,13 +13,26 @@ public class InitName extends Message {
 
 	@Override
 	public void action(Client cli) {
-		// TODO Auto-generated method stub
-		
+		cli.setState(Integer.parseInt(getContents()));	
 	}
 
 	@Override
 	public void action(ClientSession sess) {
-		sess.name = getContents();
+		
+		boolean nameNotUsed = true;
+		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
+		while (activeSessions.hasNext()) {
+			ClientSession session = activeSessions.next();
+			if (session.getName().equals(getContents())) {
+				sess.sendMessage(new InitName("2"));
+				nameNotUsed = false;
+				break;
+			}
+		}
+		if(nameNotUsed){
+			sess.sendMessage(new InitName("3"));
+			sess.name = getContents();
+		}
 		
 	}
 

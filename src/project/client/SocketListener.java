@@ -28,17 +28,7 @@ class SocketListener extends Thread {
 	public void run() {
 		try {
 			while (true) { 		
-				Message msg = (Message) netIn.readObject(); 
-				
-				/*
-				if(!analyzeMessage(msg)){
-					synchronized (inQueue) { 					// lukku!
-						inQueue.add(msg.getContents());
-					}
-					
-					
-				}
-				*/
+				Message msg = (Message) netIn.readObject();
 				
 				msg.action(cli);
 			}
