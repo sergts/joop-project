@@ -194,6 +194,9 @@ public class Client extends Thread {
 					watcher = new DirWatcher(msg.split(" ")[1], this);
 				
 			}
+			else if(msg.equalsIgnoreCase("who")){
+				out.addMessage(new WhoMessage());
+			}
 			else if (msg.split(" ").length == DOWNLOAD_QUERY_LENGTH
 					&& msg.split(" ")[DOWNLOAD_INDEX].equalsIgnoreCase("download")
 					&& msg.split(" ")[FROM_INDEX].equalsIgnoreCase("from")) {
