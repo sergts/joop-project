@@ -104,6 +104,13 @@ public class Client extends Thread {
 					else if(msg.equalsIgnoreCase("files")){
 						out.addMessage(new FilesQuery());
 					}
+					else if(msg.split(" ")[0].equalsIgnoreCase("share")){
+						File check = new File(msg.split(" ")[1]);
+						if (check.isDirectory()){
+							watcher.stopThread();
+							watcher = new DirWatcher(msg.split(" ")[1], this);
+						}
+					}
 					else if (msg.split(" ").length == DOWNLOAD_QUERY_LENGTH
 							&& msg.split(" ")[DOWNLOAD_INDEX].equalsIgnoreCase("download")
 							&& msg.split(" ")[FROM_INDEX].equalsIgnoreCase("from")) {
