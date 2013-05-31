@@ -22,7 +22,7 @@ public class FileReceiver extends Thread {
         	System.out.println(ip + " " + port);
         	Thread.sleep(500);
             Socket clientSocket = new Socket(ip, port);
-            File outputFile = new File(fileName + ".tmp");
+            File outputFile = new File(fileName + "_tmp");
             System.out.println("Client: connected to server.");
             InputStream in = clientSocket.getInputStream();
             OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile) );

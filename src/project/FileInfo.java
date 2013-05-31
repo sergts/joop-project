@@ -11,13 +11,28 @@ public class FileInfo implements Serializable {
 	long size;
 	String checkSum;
 	String absolutePath;
+	String user;
 	
 	public FileInfo(long size, String checkSum, String absolutePath ) {
 		
 		this.size=size;
 		this.checkSum=checkSum;
 		this.absolutePath=absolutePath;
+		
 	}
+	public FileInfo(long size, String checkSum, String absolutePath, String user ) {
+		
+		this.size=size;
+		this.checkSum=checkSum;
+		this.absolutePath=absolutePath;
+		this.user = user;
+	}
+	
+	
+	public String getUser(){
+		return user;
+	}
+	
 
 	public long getSize() {
 		return size;
