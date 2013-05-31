@@ -3,6 +3,7 @@ package project.messages;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Iterator;
 
 
@@ -19,7 +20,7 @@ public class DownloadMessage extends Message {
 	
 	
 	private static final int MAX_PORT_NUMBER = 65535;
-	private static final int DEFAULT_PORT = 8877;
+	private static final int DEFAULT_PORT = 8889;
 	private int port;
 
 	public DownloadMessage(String m, String to) {
@@ -48,7 +49,7 @@ public class DownloadMessage extends Message {
 					if (filename.equalsIgnoreCase(this.contents)) {
                        
 						while(true){
-							if(available(port)){
+							if(available(port, sess.ip, session.ip)){
 								break;
 							}
 							else{
@@ -60,7 +61,7 @@ public class DownloadMessage extends Message {
 
 						session.sendMessage(new OpenUploadConnMsg(send));
 
-						String receive = filename + " " + sess.ip + " " + port;
+						String receive = filename + " " + session.ip + " " + port;
 
 						sess.sendMessage(new OpenDownloadConnMsg(receive));
 
@@ -84,37 +85,37 @@ public class DownloadMessage extends Message {
 		
 	}
 
-	private boolean available(int port) {
-	    if ( port > MAX_PORT_NUMBER) {
-	        throw new IllegalArgumentException("Invalid start port: " + port);
-	    }
-
-	    ServerSocket ss = null;
-	    DatagramSocket ds = null;
+	private static boolean available(int port, String ip, String ip2) {
+	    System.out.println("--------------Testing port " + port);
+	    Socket s = null;
+	    Socket s2 = null;
 	    try {
-	        ss = new ServerSocket(port);
-	        ss.setReuseAddress(true);
-	        ds = new DatagramSocket(port);
-	        ds.setReuseAddress(true);
-	        return true;
-	    } catch (IOException e) {
-	    } finally {
-	        if (ds != null) {
-	            ds.close();
-	        }
+	        s = new Socket(ip, port);
+	        s2 = new Socket(ip2, port);
 
-	        if (ss != null) {
+	        // If the code makes it this far without an exception it means
+	        // something is using the port and has responded.
+	        System.out.println("--------------Port " + port + " is not available");
+	        return false;
+	    } catch (IOException e) {
+	        System.out.println("--------------Port " + port + " is available");
+	        return true;
+	    } finally {
+	        if( s != null){
 	            try {
-	                ss.close();
-	            } catch (IOException e) {
-	                /* should not be thrown */
-	            }
+	                s.close();
+	                
+	            } catch (IOException e) {}
+	            
+	        }
+	        if( s2 != null){
+	            try {
+	                s2.close();
+	            } catch (IOException e) {}
+	            
 	        }
 	    }
-
-	    return false;
 	}
-	
 	
 	
 

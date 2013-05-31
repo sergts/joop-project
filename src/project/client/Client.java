@@ -132,7 +132,7 @@ public class Client extends Thread {
 	}
 
 	public void downloadConn(String ip, String fileName, int port){
-		new FileReceiver(fileName, ip, port);
+		new FileReceiver(fileName, ip, port, directory);
 	}
 	public void uploadConn(String fileName, int port){
 		new FileSender(fileName, port);

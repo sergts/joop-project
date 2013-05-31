@@ -54,7 +54,8 @@ public class DirWatcher extends Thread {
 	public void run() {
 		long modified;
 		while (run) {
-			
+			try{
+				
 			modified = directory.lastModified();
 			if(modified > lastmod){
 				fileNames =  getFilesFormatted(directory.listFiles());
@@ -63,40 +64,8 @@ public class DirWatcher extends Thread {
 				
 			}
 			
-			/*
-			HashSet<File> checkedFiles = new HashSet<File>();
-			filesArray = new File(path).listFiles();
 
-			// scan the files and check for modification/addition
-			for (int i = 0; i < filesArray.length; i++) {
-				Long current = (Long) dir.get(filesArray[i]);
-				checkedFiles.add(filesArray[i]);
-				if (current == null) {
-					// new file
-					dir.put(filesArray[i],
-							new Long(filesArray[i].lastModified()));
-
-				} else if (current.longValue() != filesArray[i].lastModified()) {
-					// modified file
-					dir.put(filesArray[i],
-							new Long(filesArray[i].lastModified()));
-
-				}
-			}
-
-			// now check for deleted files
-			Set ref = ((HashMap)dir.clone()).keySet();
-			ref.removeAll((Set<File>) checkedFiles);
-			Iterator<File> it = ref.iterator();
-			while (it.hasNext()) {
-				File deletedFile = (File) it.next();
-				dir.remove(deletedFile);
-
-			}
-*/
 			
-			
-			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {}
 		}

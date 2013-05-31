@@ -11,10 +11,12 @@ public class FileReceiver extends Thread {
 	String fileName;
 	String ip;
 	int port;
-	public FileReceiver(String fileName, String ip, int port) {
+	String directory;
+	public FileReceiver(String fileName, String ip, int port, String directory) {
 		this.fileName = fileName;
 		this.ip = ip; 
 		this.port = port;
+		this.directory = directory;
 		start();
 	}
     public void run() {
@@ -22,7 +24,7 @@ public class FileReceiver extends Thread {
         	System.out.println(ip + " " + port);
         	Thread.sleep(500);
             Socket clientSocket = new Socket(ip, port);
-            File outputFile = new File(fileName + "_tmp");
+            File outputFile = new File(directory+"\\"+fileName);
             System.out.println("Client: connected to server.");
             InputStream in = clientSocket.getInputStream();
             OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile) );
@@ -30,7 +32,7 @@ public class FileReceiver extends Thread {
             StreamUtil stream = new StreamUtil();
             int bytes = stream.streamCopy(in, out);
             
-            outputFile.renameTo(new File(fileName));
+            //outputFile.renameTo(new File(fileName));
              
             System.out.println("Client: received " + outputFile + ", " + bytes + " bytes read.");
              
