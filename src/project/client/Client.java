@@ -98,38 +98,12 @@ public class Client extends Thread {
 				
 				if (msg.length() > 0) {
 					
-					if(msg.equalsIgnoreCase("myfiles")){
-						System.out.println(watcher.getFiles());
-					}
-					else if(msg.equalsIgnoreCase("files")){
-						out.addMessage(new FilesQuery());
-					}
-					else if(msg.split(" ")[0].equalsIgnoreCase("share")){
-						File check = new File(msg.split(" ")[1]);
-						if (check.isDirectory()){
-							watcher.stopThread();
-							watcher = new DirWatcher(msg.split(" ")[1], this);
-						}
-					}
-					else if (msg.split(" ").length == DOWNLOAD_QUERY_LENGTH
-							&& msg.split(" ")[DOWNLOAD_INDEX].equalsIgnoreCase("download")
-							&& msg.split(" ")[FROM_INDEX].equalsIgnoreCase("from")) {
+					parse(msg);
 						
-						out.addMessage(new DownloadMessage(
-								                   msg.split(" ")[FILENAME_INDEX],
-								                   msg.split(" ")[USERNAME_INDEX]));
-
-					}
-					
-					else{
-						out.addMessage(new TextMsg(msg));
-					}
-					
-					
 				}
 
-				if (!getInQueue().isEmpty()) { // kas on midagi saabunud?
-					synchronized (getInQueue()) { // lukku !!!
+				if (!getInQueue().isEmpty()) { 
+					synchronized (getInQueue()) { 
 						Iterator<String> incoming = getInQueue().iterator();
 						while (incoming.hasNext()) {
 							System.out.println(">> " + incoming.next());
@@ -161,7 +135,35 @@ public class Client extends Thread {
 		new FileSender(fileName, port);
 	}
 
+	public void parse(String msg){
+		
+		if(msg.equalsIgnoreCase("myfiles")){
+			System.out.println(watcher.getFiles());
+		}
+		else if(msg.equalsIgnoreCase("files")){
+			out.addMessage(new FilesQuery());
+		}
+		else if(msg.split(" ")[0].equalsIgnoreCase("share")){
+			File check = new File(msg.split(" ")[1]);
+			if (check.isDirectory()){
+				watcher.stopThread();
+				watcher = new DirWatcher(msg.split(" ")[1], this);
+			}
+		}
+		else if (msg.split(" ").length == DOWNLOAD_QUERY_LENGTH
+				&& msg.split(" ")[DOWNLOAD_INDEX].equalsIgnoreCase("download")
+				&& msg.split(" ")[FROM_INDEX].equalsIgnoreCase("from")) {
+			
+			out.addMessage(new DownloadMessage(
+					                   msg.split(" ")[FILENAME_INDEX],
+					                   msg.split(" ")[USERNAME_INDEX]));
 
+		}
+		
+		else{
+			out.addMessage(new TextMsg(msg));
+		}
+	}
 
 	public Socket getSocket() {
 		return socket;
