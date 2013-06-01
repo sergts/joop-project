@@ -22,6 +22,7 @@ public class ClientSession extends Thread {
 	public ConcurrentHashMap<String, FileInfo> files;
 	public String ip;
 	public String name;
+	private boolean run;
 	
 	
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
@@ -35,6 +36,7 @@ public class ClientSession extends Thread {
 		files = new ConcurrentHashMap<String, FileInfo>();
 		files.put("null", new FileInfo(0 ,null, null));
 		name = null;
+		run = true;
 		System.out.println( "ClientSession " + this + " stardib..." );
 		start();
 	}
@@ -47,7 +49,7 @@ public class ClientSession extends Thread {
 			super.setName(name); 				
 			activeSessions.addSession(this); 
 			
-			while (socket.isConnected()) { 						
+			while (run) { 						
 				Message incomingMessage = (Message) netIn.readObject();
 				incomingMessage.action(this);
 			} 									
@@ -55,6 +57,7 @@ public class ClientSession extends Thread {
 			
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println(getName() + " crashed");
 		} finally {
 			System.out.println(getName() + " leaves");

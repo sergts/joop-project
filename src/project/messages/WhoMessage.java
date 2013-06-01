@@ -9,10 +9,7 @@ import project.client.Client;
 public class WhoMessage extends Message {
 
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	
 
 	public WhoMessage() {
 		super();

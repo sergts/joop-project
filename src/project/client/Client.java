@@ -1,8 +1,6 @@
 package project.client;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
@@ -13,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
-import project.*;
 import project.messages.*;
 import project.utils.FileInfo;
 import project.utils.Logger;
@@ -106,8 +103,8 @@ public class Client extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			logger.add("closing...");
-			System.out.println("closing...");
+			logger.add("closing from client");
+			System.out.println("closing from client");
 			try {
 				socket.close();
 			} catch (IOException e) {}
@@ -120,10 +117,10 @@ public class Client extends Thread {
 	}
 
 	public void downloadConn(String ip, String fileName, int port){
-		new FileReceiver(fileName, ip, port, directory);
+		new FileReceiver(fileName, ip, port, directory, this);
 	}
 	public void uploadConn(String fileName, int port){
-		new FileSender(fileName, port);
+		new FileSender(fileName, port, this);
 	}
 
 
@@ -164,7 +161,7 @@ public class Client extends Thread {
 
 
 
-	public OutboundMessages getOut() {
+	public synchronized OutboundMessages getOut() {
 		return out;
 	}
 	

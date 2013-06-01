@@ -10,14 +10,11 @@ import project.client.Client;
 
 public class DownloadMessage extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	
 	
-	private static final int MAX_PORT_NUMBER = 65535;
-	private static final int DEFAULT_PORT = 8889;
+
+	private static final int MAX_PORT_NUMBER = 8887;
+	private static final int DEFAULT_PORT = 8000;
 	private int port;
 
 	public DownloadMessage(String m, String to) {
@@ -32,8 +29,11 @@ public class DownloadMessage extends Message {
 	@Override
 	public void action(ClientSession sess) {
 
+		System.out.println(" staring download message at client session");
 
 		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
+		System.out.println(" sessions iterator accessed");
+		
 		while (activeSessions.hasNext()) {
 			ClientSession session = activeSessions.next();
 			if (session.getName().equals(this.to)) {
@@ -52,14 +52,14 @@ public class DownloadMessage extends Message {
 							}
 						}
 						
-						String send = session.files.get(filename).getPath() + " " + port;
+						String send = session.files.get(filename).getPath() + "<" + port;
 
 						session.sendMessage(new OpenUploadConnMsg(send));
-
-						String receive = filename + " " + session.ip + " " + port;
+						System.out.println("upload mesage sent");
+						String receive = filename + "<" + session.ip + "<" + port;
 
 						sess.sendMessage(new OpenDownloadConnMsg(receive));
-
+						System.out.println("downlaod message sent");
 
 
 					}

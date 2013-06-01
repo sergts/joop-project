@@ -19,7 +19,7 @@ import project.messages.*;
 @SuppressWarnings("serial")
 public class GUI extends JFrame{
 
-	private static final int FRAME_WIDTH = 700, FRAME_HEIGHT = 500;
+	private static final int FRAME_WIDTH = 700, FRAME_HEIGHT = 600;
 	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerPeersPanel;
 	private DefaultListModel<String> filesModel, usersModel, logsModel;
 	private JList<String> filesList, usersList, logsList;
@@ -56,7 +56,7 @@ public class GUI extends JFrame{
 
 		(new Thread() { public void run() {  }}).start();
 
-		new javax.swing.Timer(1000, new RefreshListener()).start();
+		new javax.swing.Timer(3000, new RefreshListener()).start();
 		
 
 		
@@ -70,12 +70,12 @@ public class GUI extends JFrame{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		JPanel upperPanel = new JPanel();
-		JPanel lowerPanel = new JPanel();
-		JPanel lowestPanel = new JPanel();	
+		JPanel midPanel = new JPanel();
+		JPanel lowerPanel = new JPanel();	
 		upperPanel.setLayout(new GridLayout(1, 2));
-		upperPanel.setPreferredSize(new Dimension(FRAME_WIDTH, (FRAME_HEIGHT * 1/2)));
-		lowerPanel.setLayout(new GridLayout(1, 2));
-		lowestPanel.setLayout(new GridLayout(1, 0));
+		//upperPanel.setPreferredSize(new Dimension(FRAME_WIDTH, (FRAME_HEIGHT * 1/2)));
+		midPanel.setLayout(new GridLayout(1, 2));
+		lowerPanel.setLayout(new GridLayout(1, 0));
 
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 
@@ -87,7 +87,7 @@ public class GUI extends JFrame{
 		logsList = new JList<String>(logsModel);
 		filesPanel = initPanel(new JLabel("Files"), filesList, 300, 200, false);
 		usersPanel = initPanel(new JLabel("Users"), usersList, 115, 200, false);
-		logsPanel = initPanel(new JLabel("Logs"), logsList, 500, 100, true);
+		logsPanel = initPanel(new JLabel("Logs"), logsList, 500, 200, true);
 		lowerFilesPanel = new JPanel();
 		lowerPeersPanel = new JPanel();
 
@@ -106,14 +106,14 @@ public class GUI extends JFrame{
 
 		upperPanel.add(filesPanel);
 		upperPanel.add(usersPanel);
-		lowerPanel.add(lowerFilesPanel);
-		lowerPanel.add(lowerPeersPanel);
-		lowestPanel.add(logsPanel);
+		midPanel.add(lowerFilesPanel);
+		midPanel.add(lowerPeersPanel);
+		lowerPanel.add(logsPanel);
 
 
 		frame.add(upperPanel, BorderLayout.NORTH);
-		frame.add(lowerPanel, BorderLayout.CENTER);
-		frame.add(lowestPanel, BorderLayout.SOUTH);
+		frame.add(midPanel, BorderLayout.CENTER);
+		frame.add(lowerPanel, BorderLayout.SOUTH);
 		
 		refreshDataButton.setVisible(false);
 		setNameTextField.setVisible(false);
@@ -164,7 +164,7 @@ public class GUI extends JFrame{
 		if(client.getFilesOnServer() != null){
 			String element;
 			for (String filename : client.getFilesOnServer().keySet()) {
-				element = filename + " ("+ formatSize(client.getFilesOnServer().get(filename).getSize())+")";
+				element = filename + " : "+ formatSize(client.getFilesOnServer().get(filename).getSize());
 				filesModel.addElement(element);
 			}
 		}
@@ -185,8 +185,13 @@ public class GUI extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			if(filesList.getSelectedValue() != null){
 				String selected = filesList.getSelectedValue().toString();
-				String filename = selected.substring(0, selected.indexOf(':')).trim();
-				String owner = selected.substring(selected.indexOf(':') + 1, selected.length()).trim();
+				String filename = selected.substring(0, selected.indexOf(':') - 1);
+				
+				String sub = (selected.substring(selected.indexOf(':') + 1,selected.length()));
+				String owner = sub.substring(0, sub.indexOf(':')).trim();
+				
+				System.out.println(filename + ' ' + owner);
+				
 				client.getOut().addMessage(new DownloadMessage(filename, owner));
 			}
 		}
@@ -262,6 +267,7 @@ public class GUI extends JFrame{
 				searchTextField.setVisible(true);
 				searchFilesButton.setVisible(true);
 				refreshDataButton.setVisible(true);
+				client.getOut().addMessage(new WhoMessage());
 			}
 			updateFileList();
 			updateUserList();
@@ -275,6 +281,9 @@ public class GUI extends JFrame{
 			
 			client.getOut().addMessage(new FilesQuery());
 			client.getOut().addMessage(new WhoMessage());
+			updateFileList();
+			updateUserList();
+			updateLogsList();
 			
 		}
 	}

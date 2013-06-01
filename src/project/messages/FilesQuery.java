@@ -9,10 +9,7 @@ import project.utils.FileInfo;
 
 public class FilesQuery extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	
 
 	public FilesQuery(String search){
 		super(search);

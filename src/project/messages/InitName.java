@@ -7,10 +7,7 @@ import project.client.Client;
 
 public class InitName extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+
 
 	public InitName(String myName) {
 		super(myName);

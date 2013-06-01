@@ -8,15 +8,19 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 public class FileReceiver extends Thread {
-	String fileName;
-	String ip;
-	int port;
-	String directory;
-	public FileReceiver(String fileName, String ip, int port, String directory) {
+	private String fileName;
+	private String ip;
+	private int port;
+	private String directory;
+	private Client client;
+	
+	
+	public FileReceiver(String fileName, String ip, int port, String directory, Client client) {
 		this.fileName = fileName;
 		this.ip = ip; 
 		this.port = port;
 		this.directory = directory;
+		this.client = client;
 		start();
 	}
     public void run() {
@@ -26,21 +30,22 @@ public class FileReceiver extends Thread {
             Socket clientSocket = new Socket(ip, port);
             File outputFile = new File(directory+"\\"+fileName);
             System.out.println("Client: connected to server.");
+            client.getLogger().add("Connected to uploader: " + ip + ":" + port);
+            
             InputStream in = clientSocket.getInputStream();
             OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile) );
              
             StreamUtil stream = new StreamUtil();
             int bytes = stream.streamCopy(in, out);
             
-            //outputFile.renameTo(new File(fileName));
              
             System.out.println("Client: received " + outputFile + ", " + bytes + " bytes read.");
+            client.getLogger().add("Received " + outputFile + ", " + bytes + " bytes read.");
              
             
             in.close();
             out.flush();
             out.close();
-               
             clientSocket.close();
             System.out.println("Client: finished");
 		} catch (Exception e) {

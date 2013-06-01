@@ -5,10 +5,7 @@ import project.client.Client;
 
 public class InitIp extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	
 
 	public InitIp(String hostAddress) {
 		super(hostAddress);

@@ -18,13 +18,11 @@ public class Server {
 		ServerSocket serv = new ServerSocket(PORT);
 		System.out.println("Server startis...");
 		
-		//new Broadcaster(activeSessions, outQueue);
-		
 		try {
-			while (true) { 									// serveri töötsükkel
-				Socket sock = serv.accept(); 				// blocked!
+			while (true) { 									
+				Socket sock = serv.accept(); 				
 				try {
-					new ClientSession(sock, outQueue, activeSessions); // sh. ClientSession.start()
+					new ClientSession(sock, outQueue, activeSessions);
 				} catch (IOException e) {
 					System.out.println("Socketi loomise avarii :(");
 					sock.close();

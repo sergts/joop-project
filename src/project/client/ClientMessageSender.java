@@ -11,7 +11,7 @@ import project.utils.OutboundMessages;
 public class ClientMessageSender extends Thread {
 	
 	private OutboundMessages outQueue;
-	ObjectOutputStream netOut;
+	private ObjectOutputStream netOut;
 	
 	ClientMessageSender(OutboundMessages o, ObjectOutputStream netOut) {
 		outQueue = o;
@@ -21,12 +21,16 @@ public class ClientMessageSender extends Thread {
 
 	public void run() {
 		while (true) {  
-			Message msg = outQueue.getMessage(); 				
+			Message msg = outQueue.getMessage(); 
 			try {
-				netOut.reset();
-				netOut.writeObject(msg);
+				synchronized(netOut){
+					netOut.reset();
+					netOut.writeObject(msg);
+				}
+				
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Socket closed");
+				
 			}
 			
 		}

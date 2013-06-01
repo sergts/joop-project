@@ -10,10 +10,7 @@ public class UpdFilesMsg extends Message {
 	
 
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	
 
 	public UpdFilesMsg(ConcurrentHashMap<String, FileInfo> files) {
 		super(files);

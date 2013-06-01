@@ -5,10 +5,7 @@ import project.client.Client;
 
 public class TextMsg extends Message {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	
 
 	public TextMsg(String string) {
 		super(string);
