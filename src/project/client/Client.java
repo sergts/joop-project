@@ -46,10 +46,9 @@ public class Client extends Thread {
 	
 
 
-	public Client(int port, String server, String dir){
+	public Client(String server, int port){
 		this.port = port;
 		this.serverAddr = server;
-		setDirectory(dir);
 		start();
 	}
 	public Client(){
@@ -269,6 +268,7 @@ public class Client extends Thread {
 	public void initNameGUI(){
 		state = 0;
 		logger.add("Enter name");
+		boolean flag = true;
 		while(true){
 			if(state == 0){
 				try {
@@ -279,6 +279,7 @@ public class Client extends Thread {
 				
 			}
 			else if(state == 1){
+				flag = true;
 				try {
 					Thread.currentThread();
 					Thread.sleep(100);
@@ -286,7 +287,8 @@ public class Client extends Thread {
 			}
 			else if(state == 2){ //name in use
 				setName("");
-				logger.add("Name already in use, enter new one");
+				if(flag) logger.add("Name already in use, enter new one");
+				flag = false;
 				try {
 					Thread.currentThread();
 					Thread.sleep(100);
@@ -296,7 +298,8 @@ public class Client extends Thread {
 			else if(state == 3){ //server answer sets state to 2 or 3, if 3 name is ok
 				System.out.println("Ok, your name is: " + getName());
 				logger.add("Ok, your name is: " + getName());
-				
+				getOut().addMessage(new FilesQuery());
+				getOut().addMessage(new WhoMessage());
 				break;
 			}
 		}

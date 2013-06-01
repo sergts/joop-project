@@ -41,12 +41,9 @@ public class ClientSession extends Thread {
 
 	public void run() {
 		try {
-			
-			
 			while(name == null){
 				((Message)netIn.readObject()).action(this);
 			}
-			
 			super.setName(name); 				
 			activeSessions.addSession(this); 
 			
@@ -57,7 +54,7 @@ public class ClientSession extends Thread {
 												
 			
 			
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (Exception e) {
 			System.out.println(getName() + " crashed");
 		} finally {
 			System.out.println(getName() + " leaves");

@@ -18,7 +18,7 @@ public class Server {
 		ServerSocket serv = new ServerSocket(PORT);
 		System.out.println("Server startis...");
 		
-		new Broadcaster(activeSessions, outQueue);
+		//new Broadcaster(activeSessions, outQueue);
 		
 		try {
 			while (true) { 									// serveri töötsükkel

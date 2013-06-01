@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ActiveSessions {
-	private CopyOnWriteArrayList<ClientSession> sessionList 
-			= new CopyOnWriteArrayList<ClientSession>(); // 
+	private CopyOnWriteArrayList<ClientSession> sessionList = new CopyOnWriteArrayList<ClientSession>(); 
 	
 	
 	

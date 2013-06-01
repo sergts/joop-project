@@ -24,8 +24,6 @@ public class FilesQuery extends Message {
 
 	@Override
 	public void action(Client cli) {
-		
-		
 		if(getFiles() != null){
 			cli.setFilesOnServer(getFiles());
 		}
@@ -44,7 +42,7 @@ public class FilesQuery extends Message {
 			ClientSession client = clients.next();
 			if(client.isAlive()){
 				for(String f : client.files.keySet()){
-					if(f.indexOf(filter) != -1){
+					if(f.toLowerCase().indexOf(filter.toLowerCase()) != -1){
 						key = f + " : " + client.getName();
 						filesMap.put(key, client.files.get(f));
 					}

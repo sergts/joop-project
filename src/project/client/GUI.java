@@ -23,17 +23,26 @@ public class GUI extends JFrame{
 	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerPeersPanel;
 	private DefaultListModel<String> filesModel, usersModel, logsModel;
 	private JList<String> filesList, usersList, logsList;
-	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton;
+	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton, refreshDataButton;
 	private JTextField shareTextField, searchTextField, setNameTextField;
 	private Client client;
+	
+	public static void main(String[] args) throws IOException{
+
+		new GUI("localhost", 8888);
+
+	}
 
 
-	private GUI(){
-		client = new Client();
+	private GUI(String server, int port){
+		
+		client = new Client(server, port);
 		
 
 		downloadFilesButton = new JButton("Download");
 		downloadFilesButton.addActionListener(new DownloadListener());
+		refreshDataButton = new JButton("Refresh data");
+		refreshDataButton.addActionListener(new RefreshDataListener());
 		shareFilesButton = new JButton("Share");
 		shareFilesButton.addActionListener(new ShareListener());
 		searchFilesButton = new JButton("Search");
@@ -47,7 +56,8 @@ public class GUI extends JFrame{
 
 		(new Thread() { public void run() {  }}).start();
 
-		new javax.swing.Timer(2000, new RefreshListener()).start();
+		new javax.swing.Timer(1000, new RefreshListener()).start();
+		
 
 		
 	}
@@ -76,17 +86,19 @@ public class GUI extends JFrame{
 		logsModel = new DefaultListModel<String>();
 		logsList = new JList<String>(logsModel);
 		filesPanel = initPanel(new JLabel("Files"), filesList, 300, 200, false);
-		usersPanel = initPanel(new JLabel("Users"), usersList, 150, 200, false);
+		usersPanel = initPanel(new JLabel("Users"), usersList, 115, 200, false);
 		logsPanel = initPanel(new JLabel("Logs"), logsList, 500, 100, true);
 		lowerFilesPanel = new JPanel();
 		lowerPeersPanel = new JPanel();
 
 		filesPanel.add(downloadFilesButton);
+		filesPanel.add(refreshDataButton);
 		
-		lowerFilesPanel.add(searchTextField);
-		lowerFilesPanel.add(searchFilesButton);
 		lowerFilesPanel.add(shareTextField);
 		lowerFilesPanel.add(shareFilesButton);
+		lowerFilesPanel.add(searchTextField);
+		lowerFilesPanel.add(searchFilesButton);
+		
 		
 
 		lowerPeersPanel.add(setNameTextField);
@@ -99,10 +111,15 @@ public class GUI extends JFrame{
 		lowestPanel.add(logsPanel);
 
 
-
 		frame.add(upperPanel, BorderLayout.NORTH);
 		frame.add(lowerPanel, BorderLayout.CENTER);
 		frame.add(lowestPanel, BorderLayout.SOUTH);
+		
+		refreshDataButton.setVisible(false);
+		setNameTextField.setVisible(false);
+		setNameButton.setVisible(false);
+		searchTextField.setVisible(false);
+		searchFilesButton.setVisible(false);
 
 		frame.setVisible(true);
 
@@ -182,7 +199,6 @@ public class GUI extends JFrame{
 			String dir = shareTextField.getText().trim();
 			
 			if(!client.isInitDir()){
-				System.out.println("reading");
 				client.setDirectory("share " + dir);
 				client.setState(0);
 			}else{
@@ -201,7 +217,6 @@ public class GUI extends JFrame{
 
 	class SearchListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			
 			String search = searchTextField.getText().trim();
 			client.getOut().addMessage(new FilesQuery(search));
 
@@ -214,10 +229,13 @@ public class GUI extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			String name = setNameTextField.getText().trim();
 			if(name.length() > 0){
-				if(client.getClientState() == 0 || client.getClientState() == 2){
+				if(name.indexOf(" ") != -1 || name.indexOf(":") != -1 ){
+					client.getLogger().add("Illegal name, don't use whitespaces or colons");
+				}
+				else if(client.getClientState() == 0 || client.getClientState() == 2){
 					client.getOut().addMessage(new InitName(name));
-					client.setName(name);
 					client.setState(1);
+					client.setName(name);
 				}
 			}
 			
@@ -234,11 +252,16 @@ public class GUI extends JFrame{
 	class RefreshListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
+			if(client.isInitDir() && client.getClientState() != 3){
+				setNameTextField.setVisible(true);
+				setNameButton.setVisible(true);
+			}
 			if(client.getClientState() == 3){
 				setNameTextField.setVisible(false);
 				setNameButton.setVisible(false);
-				client.getOut().addMessage(new FilesQuery());
-				client.getOut().addMessage(new WhoMessage());
+				searchTextField.setVisible(true);
+				searchFilesButton.setVisible(true);
+				refreshDataButton.setVisible(true);
 			}
 			updateFileList();
 			updateUserList();
@@ -247,8 +270,17 @@ public class GUI extends JFrame{
 		}
 	}
 	
+	class RefreshDataListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			
+			client.getOut().addMessage(new FilesQuery());
+			client.getOut().addMessage(new WhoMessage());
+			
+		}
+	}
+	
 	public static String formatSize(long bytes) {
-	    int unit = 1024;
+	    int unit = 1000;
 	    if (bytes < unit) return bytes + " B";
 	    int exp = (int) (Math.log(bytes) / Math.log(unit));
 	    char pre = ("kMGTPE").charAt(exp-1);
@@ -257,10 +289,5 @@ public class GUI extends JFrame{
 
 
 
-	public static void main(String[] args) throws IOException{
-
-		new GUI();
-
-	}
-
+	
 }
