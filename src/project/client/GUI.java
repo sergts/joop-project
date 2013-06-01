@@ -19,7 +19,7 @@ import project.messages.*;
 @SuppressWarnings("serial")
 public class GUI extends JFrame{
 
-	private static final int FRAME_WIDTH = 700, FRAME_HEIGHT = 600;
+	private static final int FRAME_WIDTH = 700, FRAME_HEIGHT = 650;
 	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerPeersPanel;
 	private DefaultListModel<String> filesModel, usersModel, logsModel;
 	private JList<String> filesList, usersList, logsList;
@@ -73,7 +73,7 @@ public class GUI extends JFrame{
 		JPanel midPanel = new JPanel();
 		JPanel lowerPanel = new JPanel();	
 		upperPanel.setLayout(new GridLayout(1, 2));
-		//upperPanel.setPreferredSize(new Dimension(FRAME_WIDTH, (FRAME_HEIGHT * 1/2)));
+		upperPanel.setPreferredSize(new Dimension(FRAME_WIDTH, (FRAME_HEIGHT * 1/2)));
 		midPanel.setLayout(new GridLayout(1, 2));
 		lowerPanel.setLayout(new GridLayout(1, 0));
 
@@ -87,7 +87,7 @@ public class GUI extends JFrame{
 		logsList = new JList<String>(logsModel);
 		filesPanel = initPanel(new JLabel("Files"), filesList, 300, 200, false);
 		usersPanel = initPanel(new JLabel("Users"), usersList, 115, 200, false);
-		logsPanel = initPanel(new JLabel("Logs"), logsList, 500, 200, true);
+		logsPanel = initPanel(new JLabel("Logs"), logsList, 600, 200, true);
 		lowerFilesPanel = new JPanel();
 		lowerPeersPanel = new JPanel();
 
