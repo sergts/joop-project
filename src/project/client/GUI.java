@@ -58,6 +58,16 @@ public class GUI extends JFrame{
 
 		new javax.swing.Timer(3000, new RefreshListener()).start();
 		
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+		    @Override
+		    public void run()
+		    {
+		        client.getOut().addMessage(new ExitMsg());
+		        client.stopRunning();
+		    }
+		});
+		
 
 		
 	}
@@ -86,8 +96,8 @@ public class GUI extends JFrame{
 		logsModel = new DefaultListModel<String>();
 		logsList = new JList<String>(logsModel);
 		filesPanel = initPanel(new JLabel("Files"), filesList, 300, 200, false);
-		usersPanel = initPanel(new JLabel("Users"), usersList, 115, 200, false);
-		logsPanel = initPanel(new JLabel("Logs"), logsList, 600, 200, true);
+		usersPanel = initPanel(new JLabel("Users"), usersList, 170, 200, false);
+		logsPanel = initPanel(new JLabel("Logs"), logsList, 580, 200, true);
 		lowerFilesPanel = new JPanel();
 		lowerPeersPanel = new JPanel();
 
@@ -269,7 +279,7 @@ public class GUI extends JFrame{
 				refreshDataButton.setVisible(true);
 				client.getOut().addMessage(new WhoMessage());
 			}
-			updateFileList();
+			
 			updateUserList();
 			updateLogsList();
 			

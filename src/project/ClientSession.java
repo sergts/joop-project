@@ -97,4 +97,9 @@ public class ClientSession extends Thread {
 	public ActiveSessions getActiveSessions() {
 		return activeSessions;
 	}
+
+	public void stopSession() {
+		run = false;
+		
+	}
 }

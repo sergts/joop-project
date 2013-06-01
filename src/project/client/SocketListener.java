@@ -26,8 +26,8 @@ class SocketListener extends Thread {
 				msg.action(cli);
 			}
 
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			cli.getLogger().add("Problem in socket listener");
 		} finally {
 			try {
 				if (!socket.isClosed()) {

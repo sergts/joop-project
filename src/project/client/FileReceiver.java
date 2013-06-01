@@ -26,7 +26,6 @@ public class FileReceiver extends Thread {
     public void run() {
         try {
         	System.out.println(ip + " " + port);
-        	Thread.sleep(500);
             Socket clientSocket = new Socket(ip, port);
             
             File tmpDir = new File(directory+"/tmp");
@@ -47,8 +46,7 @@ public class FileReceiver extends Thread {
             int bytes;
             try {
             	bytes = stream.streamCopy(in, out);
-				String newPath = outputFile.getAbsolutePath().replaceAll("tmp\\\\",
-						"");
+				String newPath = outputFile.getAbsolutePath().replaceAll("tmp\\\\","");
 				
 				File newOutputFile = new File(newPath);
 				org.apache.commons.io.FileUtils.copyFile(outputFile, newOutputFile);
@@ -69,7 +67,7 @@ public class FileReceiver extends Thread {
 			}
 		} catch (Exception e) {
 			
-			e.printStackTrace();
+			client.getLogger().add("Error during file " + fileName + " receiving process.");
 		}
     }
 }

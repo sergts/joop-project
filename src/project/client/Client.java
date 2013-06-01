@@ -40,6 +40,7 @@ public class Client extends Thread {
 	private ConcurrentHashMap<String, FileInfo> filesOnServer;
 	private CopyOnWriteArrayList<String> usersOnServer;
 	private Logger logger;
+	private boolean run;
 	
 
 
@@ -62,6 +63,7 @@ public class Client extends Thread {
 		setLogger(new Logger());
 		setInQueue(new LinkedList<String>()); 
 		setOut(new OutboundMessages());
+		run = true;
 		initDir();
 
 		try {
@@ -79,15 +81,13 @@ public class Client extends Thread {
 			netOut.flush();
 			setNetIn(new ObjectInputStream(getSocket().getInputStream()));
 			new ClientMessageSender(getOut(), netOut);
-			//BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 			new SocketListener(this);
 			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
 			initNameGUI();
 			watcher = new DirWatcher(getDirectory(), this);
-			//String msg;
-			do { 
-				//msg = stdin.readLine(); 
-				//parseMessage(msg);
+			
+			while(run) { 
+				
 				if (!getInQueue().isEmpty()) {
 					synchronized (getInQueue()) {
 						Iterator<String> incoming = getInQueue().iterator();
@@ -99,7 +99,7 @@ public class Client extends Thread {
 						}
 					}
 				}
-			} while (true);
+			};
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -343,7 +343,7 @@ public class Client extends Thread {
 		}
 	}
 	
-	public void setState(int s){
+	public synchronized void setState(int s){
 		state = s;
 	}
 	public int getClientState(){
@@ -377,6 +377,9 @@ public class Client extends Thread {
 	}
 	public void setLogger(Logger logger) {
 		this.logger = logger;
+	}
+	public void stopRunning(){
+		run = false;
 	}
 	
 	public String getGUILabel(){
