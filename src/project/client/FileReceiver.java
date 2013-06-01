@@ -2,10 +2,13 @@ package project.client;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.channels.FileChannel;
 
 public class FileReceiver extends Thread {
 	private String fileName;
@@ -28,14 +31,15 @@ public class FileReceiver extends Thread {
         	System.out.println(ip + " " + port);
             Socket clientSocket = new Socket(ip, port);
             
-            File tmpDir = new File(directory+"/tmp");
+            File tmpDir = new File(directory+"//tmp");
 			if (!tmpDir.exists()) {
 				tmpDir.mkdir();
 			}
 			
 			tmpDir.mkdir();
-			File outputFile = new File(directory+"/tmp", fileName);
 			
+			File outputFile = new File(directory+"//tmp", fileName);
+			//File outputFile = new File(directory, fileName);
             System.out.println("Client: connected to server.");
             client.getLogger().add("Connected to uploader: " + ip + ":" + port);
             
@@ -46,10 +50,13 @@ public class FileReceiver extends Thread {
             int bytes;
             try {
             	bytes = stream.streamCopy(in, out);
-				String newPath = outputFile.getAbsolutePath().replaceAll("tmp\\\\","");
+				//String newPath = outputFile.getAbsolutePath().replaceAll("tmp\\\\","");
 				
-				File newOutputFile = new File(newPath);
-				org.apache.commons.io.FileUtils.copyFile(outputFile, newOutputFile);
+				
+				
+				File newOutputFile = new File(directory, fileName);
+				copyFile(outputFile, newOutputFile);
+				
 				System.out.println("Client: received " + outputFile + ", " + bytes + " bytes read.");
 	            client.getLogger().add("Received " + outputFile + ", " + bytes + " bytes read.");
             }catch(Exception e){
@@ -64,10 +71,36 @@ public class FileReceiver extends Thread {
 				
 				clientSocket.close();
 				outputFile.delete();
+				
 			}
 		} catch (Exception e) {
 			
 			client.getLogger().add("Error during file " + fileName + " receiving process.");
+		}finally{
+			client.getBusyPorts().remove(port);
 		}
+    }
+    
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        if(!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+        }
+        finally {
+            if(source != null) {
+                source.close();
+            }
+            if(destination != null) {
+                destination.close();
+            }
+        }
     }
 }

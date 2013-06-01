@@ -34,11 +34,20 @@ public class DownloadMessage extends Message {
 		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 		System.out.println(" sessions iterator accessed");
 		
+		String filename = this.contents;
 		while (activeSessions.hasNext()) {
 			ClientSession session = activeSessions.next();
 			if (session.getName().equals(this.to)) {
 
-
+				
+				
+				if(session.files.containsKey(filename)){
+					
+					session.sendMessage(new OpenUploadConnMsg(session.files.get(filename).getPath(), 
+							sess.getName() + "<" + filename + "<" + session.ip ));
+					System.out.println("upload message sent");
+				}
+/*
 				for (String filename : session.files.keySet()) {
 
 					if (filename.equalsIgnoreCase(this.contents)) {
@@ -63,14 +72,14 @@ public class DownloadMessage extends Message {
 
 
 					}
-				}
+				}*/
 
 			}
 		}
 
 	}
 	
-	
+	/*
 	private int changePortValue(int currentPort) {
 		
 		if(currentPort==MAX_PORT_NUMBER){
@@ -108,7 +117,7 @@ public class DownloadMessage extends Message {
 	        }
 	    }
 	}
-	
+	*/
 	
 
 }

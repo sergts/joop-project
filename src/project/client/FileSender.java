@@ -22,7 +22,7 @@ public class FileSender extends Thread{
     public void run() {
         try {
         	ServerSocket serverSocket = new ServerSocket(port);
-        	serverSocket.setSoTimeout(5000);
+        	serverSocket.setSoTimeout(10000);
             File file = new File(fileName);
             System.out.println("Server: waiting for a client to connect.");
             client.getLogger().add("Waiting to send file " + file + " on port " + port);
@@ -44,6 +44,8 @@ public class FileSender extends Thread{
             
 		} catch (Exception e) {
 			client.getLogger().add("Error during file " + fileName + " sendnig process");
+		}finally{
+			client.getBusyPorts().remove(port);
 		}
         
     }

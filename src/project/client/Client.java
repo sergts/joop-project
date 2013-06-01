@@ -19,12 +19,6 @@ import project.utils.OutboundMessages;
 
 public class Client extends Thread {
 
-	private static final int DOWNLOAD_QUERY_LENGTH = 4;
-	private static final int DOWNLOAD_INDEX = 0;
-	private static final int FILENAME_INDEX = 1;
-	private static final int FROM_INDEX = 2;
-	private static final int USERNAME_INDEX = 3;
-
 	private DirWatcher watcher;
 	private String directory;
 	private int port;
@@ -35,12 +29,12 @@ public class Client extends Thread {
 	private ObjectInputStream netIn;
 	private ObjectOutputStream netOut;
 	private int state;
-	private String name;
 	private boolean initDir;
 	private ConcurrentHashMap<String, FileInfo> filesOnServer;
 	private CopyOnWriteArrayList<String> usersOnServer;
 	private Logger logger;
 	private boolean run;
+	private Set<Integer> busyPorts;   //properly synch this one
 	
 
 
@@ -52,14 +46,15 @@ public class Client extends Thread {
 	public Client(){
 		port = 8888;
 		serverAddr = "localhost";
-		setDirectory("H:\\Projects\\test2");
+		setDirectory("");
 		start();
 	}
 
 
 
 	public void run(){
-
+		
+		setBusyPorts(new HashSet<Integer>());
 		setLogger(new Logger());
 		setInQueue(new LinkedList<String>()); 
 		setOut(new OutboundMessages());
@@ -99,7 +94,7 @@ public class Client extends Thread {
 						}
 					}
 				}
-			};
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -117,12 +112,40 @@ public class Client extends Thread {
 	}
 
 	public void downloadConn(String ip, String fileName, int port){
+		busyPorts.add(port);
 		new FileReceiver(fileName, ip, port, directory, this);
 	}
 	public void uploadConn(String fileName, int port){
 		new FileSender(fileName, port, this);
 	}
-
+	
+	public void uploadConn(String fileName, String downloadInfo){
+		int port = getFreePort();
+		new FileSender(fileName, port, this);
+		
+		out.addMessage(new OpenDownloadConnMsg( 
+				downloadInfo.substring(downloadInfo.indexOf("<") + 1) + "<"+port, 
+				downloadInfo.substring(0, downloadInfo.indexOf("<")) ));
+		
+		System.out.println("open download msg sent " + downloadInfo + "<"+port);
+		
+	}
+	
+	
+	public int getFreePort(){
+		int port = 8000;
+		int maxPort = 8887;
+		while(port <= maxPort){
+			if(port == maxPort) port = 8000;
+			if(!getBusyPorts().contains(port)){
+				getBusyPorts().add(port);
+				break;
+			}
+		}
+		return port;
+		
+		
+	}
 
 
 	public Socket getSocket() {
@@ -174,51 +197,18 @@ public class Client extends Thread {
 	public void setOut(OutboundMessages out) {
 		this.out = out;
 	}
-	
-	public void parseMessage(String msg){
-		if (msg.length() > 0) {
+
+	public void resetDir(String dir){
+		if(validateDirectory(dir)){
 			
-			if(msg.equalsIgnoreCase("myfiles")){
-				System.out.println(watcher.getFiles());
-			}
-			else if(msg.equalsIgnoreCase("files")){
-				
-				out.addMessage(new FilesQuery());
-				
-			}
-			else if(validateDirectory(msg)){
-				
-					watcher.stopThread();
-					watcher = new DirWatcher(msg.split(" ")[1], this);
-				
-			}
-			else if(msg.equalsIgnoreCase("who")){
-				out.addMessage(new WhoMessage());
-			}
-			else if (msg.split(" ").length == DOWNLOAD_QUERY_LENGTH
-					&& msg.split(" ")[DOWNLOAD_INDEX].equalsIgnoreCase("download")
-					&& msg.split(" ")[FROM_INDEX].equalsIgnoreCase("from")) {
-				
-				out.addMessage(new DownloadMessage(
-						msg.split(" ")[FILENAME_INDEX],
-						msg.split(" ")[USERNAME_INDEX]));
-				
-			}
-			
-			else{
-				out.addMessage(new TextMsg(msg));
-			}
-			
-			
+			watcher.stopThread();
+			watcher = new DirWatcher(dir, this);
+		
 		}
-		
-		
 	}
 	
-	private boolean validateDirectory(String directory){
-		
-		if(directory.split(" ")[0].equalsIgnoreCase("share")){
-			File check = new File(directory.split(" ")[1]);
+	private boolean validateDirectory(String directory){	
+			File check = new File(directory);
 			if (check.isDirectory()){
 				System.out.println("Correct directory");
 				logger.add("Correct directory");
@@ -226,7 +216,8 @@ public class Client extends Thread {
 				return true;
 			}
 			check = null;
-		}
+		
+		
 		logger.add("Wrong directory");
 		System.out.println("Wrong directory");
 		return false;
@@ -246,7 +237,7 @@ public class Client extends Thread {
 			if(state == 0){
 				
 				if(validateDirectory(getDirectory())){
-					setDirectory(getDirectory().split(" ")[1]);
+					setDirectory(getDirectory());
 					setInitDir(true);
 					state = 0;
 					break;
@@ -303,45 +294,6 @@ public class Client extends Thread {
 	}
 	
 	
-	public void initName(){
-		name = "";
-		state = 0;
-		while(true){
-			if(state == 0){
-				state = 1;
-				
-				while(name.length() == 0){
-					System.out.println("Enter your name: ");
-					name = new Scanner(System.in).nextLine();
-				}
-				out.addMessage(new InitName(name));
-				
-			}
-			else if(state == 1){
-				try {
-					Thread.currentThread();
-					Thread.sleep(100);
-				} catch (InterruptedException e) {}
-			}
-			else if(state == 2){
-				state = 1;
-				name = "";
-				System.out.println("Name already in use");
-				logger.add("Name already in use");
-				while(name.length() == 0){
-					System.out.println("Enter your name: ");
-					name = new Scanner(System.in).nextLine();
-				}
-				out.addMessage(new InitName(name));
-				
-			}
-			else if(state == 3){ //server answer sets state to 2 or 3, if 3 name is ok
-				System.out.println("Ok, your name is: " + name);
-				setName(name);
-				break;
-			}
-		}
-	}
 	
 	public synchronized void setState(int s){
 		state = s;
@@ -384,6 +336,12 @@ public class Client extends Thread {
 	
 	public String getGUILabel(){
 		return serverAddr +":" + Integer.toString(port);
+	}
+	public Set<Integer> getBusyPorts() {
+		return busyPorts;
+	}
+	public void setBusyPorts(Set<Integer> busyPorts) {
+		this.busyPorts = busyPorts;
 	}
 	
 	

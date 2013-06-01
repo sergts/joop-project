@@ -34,17 +34,7 @@ public class DirWatcher extends Thread {
 		client.getOut().addMessage(new UpdFilesMsg(fileNames));
 		lastmod = directory.lastModified();
 		this.client = client;
-		//filesArray = new File(path).listFiles();
-		
-		
-
-		// transfer to the hashmap be used a reference and keep the
-		// lastModfied value
-		/*
-		for (int i = 0; i < filesArray.length; i++) {
-			dir.put(filesArray[i], new Long(filesArray[i].lastModified()));
-		}
-		*/
+	
 		start();
 	}
 
@@ -64,8 +54,10 @@ public class DirWatcher extends Thread {
 				client.getOut().addMessage(new UpdFilesMsg(fileNames));
 				
 			}
-				Thread.sleep(500);
-			} catch (InterruptedException e) {}
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

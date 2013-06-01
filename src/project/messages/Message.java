@@ -10,7 +10,7 @@ import project.utils.FileInfo;
 
 
 
-public abstract class Message implements Serializable {
+public abstract class Message implements Serializable, Actable {
 	/**
 	 * 
 	 */
@@ -56,8 +56,7 @@ public abstract class Message implements Serializable {
 		return contents;
 	}
 	
-	public abstract void action(Client cli);
-	public abstract void action(ClientSession sess);
+	
 	
 	
 }

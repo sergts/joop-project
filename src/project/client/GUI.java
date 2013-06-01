@@ -56,7 +56,7 @@ public class GUI extends JFrame{
 
 		(new Thread() { public void run() {  }}).start();
 
-		new javax.swing.Timer(3000, new RefreshListener()).start();
+		new javax.swing.Timer(1000, new RefreshListener()).start();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread()
 		{
@@ -126,10 +126,12 @@ public class GUI extends JFrame{
 		frame.add(lowerPanel, BorderLayout.SOUTH);
 		
 		refreshDataButton.setVisible(false);
+		downloadFilesButton.setVisible(false);
 		setNameTextField.setVisible(false);
 		setNameButton.setVisible(false);
 		searchTextField.setVisible(false);
 		searchFilesButton.setVisible(false);
+		
 
 		frame.setVisible(true);
 
@@ -170,12 +172,20 @@ public class GUI extends JFrame{
 
 	
 	private void updateFileList() {
+		String selected = "null";
+		if(filesList.getSelectedValue() != null){
+			selected = filesList.getSelectedValue();
+		}
+		int ind = 0;
 		filesModel.removeAllElements();
 		if(client.getFilesOnServer() != null){
 			String element;
 			for (String filename : client.getFilesOnServer().keySet()) {
 				element = filename + " : "+ formatSize(client.getFilesOnServer().get(filename).getSize());
 				filesModel.addElement(element);
+				if(element.equals(selected))
+					filesList.setSelectedIndex(ind);
+				ind++;
 			}
 		}
 	}
@@ -185,6 +195,7 @@ public class GUI extends JFrame{
 		usersModel.removeAllElements();
 		if(client.getUsersOnServer() != null){
 			for (String username : client.getUsersOnServer()) {
+				if(username.equals(client.getName())) username+="(you)";
 				usersModel.addElement(username);
 			}
 		}
@@ -214,11 +225,11 @@ public class GUI extends JFrame{
 			String dir = shareTextField.getText().trim();
 			
 			if(!client.isInitDir()){
-				client.setDirectory("share " + dir);
+				client.setDirectory(dir);
 				client.setState(0);
 			}else{
 				if (!dir.equals("")) {
-					client.parseMessage("share " + dir);
+					client.resetDir(dir);
 				}
 				shareTextField.requestFocusInWindow();
 				
@@ -237,6 +248,7 @@ public class GUI extends JFrame{
 
 			searchTextField.requestFocusInWindow();
 			searchTextField.setText("");
+			
 		}
 	}
 	
@@ -277,9 +289,10 @@ public class GUI extends JFrame{
 				searchTextField.setVisible(true);
 				searchFilesButton.setVisible(true);
 				refreshDataButton.setVisible(true);
+				downloadFilesButton.setVisible(true);
 				client.getOut().addMessage(new WhoMessage());
 			}
-			
+			updateFileList();
 			updateUserList();
 			updateLogsList();
 			

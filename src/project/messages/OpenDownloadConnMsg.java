@@ -1,5 +1,7 @@
 package project.messages;
 
+import java.util.Iterator;
+
 import project.ClientSession;
 import project.client.Client;
 
@@ -11,7 +13,10 @@ public class OpenDownloadConnMsg extends Message{
 
 	public OpenDownloadConnMsg(String m){
 		super(m);
-		//System.out.println("msg created");
+	}
+	
+	public OpenDownloadConnMsg(String m, String to){
+		super(m, to);
 	}
 	
 	@Override
@@ -29,7 +34,22 @@ public class OpenDownloadConnMsg extends Message{
 
 	@Override
 	public void action(ClientSession sess) {
-		
+		if(to!=null){
+			Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
+			System.out.println(" opendwncon sessions iterator accessed");
+			while (activeSessions.hasNext()) {
+				ClientSession session = activeSessions.next();
+				if (session.getName().equals(this.to)) {
+					session.sendMessage(this);
+					
+				}
+			}
+			
+			
+			
+			
+			
+		}
 		
 	}
 
