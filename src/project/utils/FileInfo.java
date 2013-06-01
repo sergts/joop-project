@@ -1,4 +1,4 @@
-package project;
+package project.utils;
 
 import java.io.Serializable;
 
@@ -12,6 +12,13 @@ public class FileInfo implements Serializable {
 	String checkSum;
 	String absolutePath;
 	String user;
+	
+	public FileInfo(long size, String absolutePath ) {
+		
+		this.size=size;
+		this.absolutePath=absolutePath;
+		
+	}
 	
 	public FileInfo(long size, String checkSum, String absolutePath ) {
 		

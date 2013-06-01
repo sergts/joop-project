@@ -15,6 +15,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import project.*;
 import project.messages.*;
+import project.utils.FileInfo;
+import project.utils.Logger;
+import project.utils.OutboundMessages;
 
 
 public class Client extends Thread {
@@ -28,6 +31,7 @@ public class Client extends Thread {
 	private DirWatcher watcher;
 	private String directory;
 	private int port;
+	private String serverAddr;
 	private OutboundMessages out;
 	private Socket socket;
 	private LinkedList<String> inQueue;
@@ -38,16 +42,19 @@ public class Client extends Thread {
 	private boolean initDir;
 	private ConcurrentHashMap<String, FileInfo> filesOnServer;
 	private CopyOnWriteArrayList<String> usersOnServer;
-	private Collection<String> logs;
+	private Logger logger;
+	
 
 
-	public Client(int port, String dir){
+	public Client(int port, String server, String dir){
 		this.port = port;
+		this.serverAddr = server;
 		setDirectory(dir);
 		start();
 	}
 	public Client(){
 		port = 8888;
+		serverAddr = "localhost";
 		setDirectory("H:\\Projects\\test2");
 		start();
 	}
@@ -56,69 +63,51 @@ public class Client extends Thread {
 
 	public void run(){
 
-		//watcher = new DirWatcher(directory, this);
+		setLogger(new Logger());
 		setInQueue(new LinkedList<String>()); 
 		setOut(new OutboundMessages());
-		
 		initDir();
-		/*
-		//String directory;
-		System.out.println("Enter \"SHARE\" <directory> ");
-		while(true){
-			//directory = new Scanner(System.in).nextLine();
-			//directory = "share H:\\Projects\\test2";
-			if(validateDirectory(getDirectory())){
-				setDirectory(getDirectory().split(" ")[1]);
-				break;
-			}
-			//System.out.println("Invalid directory entered!");
-		}
-*/
-
-
 
 		try {
-			InetAddress servAddr = InetAddress.getByName("localhost");
-			setSocket(new Socket(servAddr, port)); // JabberServer.PORT
+			InetAddress servAddr = InetAddress.getByName(serverAddr);
+			setSocket(new Socket(servAddr, port)); 
 		} catch (IOException e) {
+			logger.add("Server not visible");
 			System.out.println("Server not visible");
 			return;
 		}
 		try {
 			System.out.println("socket = " + getSocket());
+			logger.add("socket = " + getSocket());
 			netOut = new ObjectOutputStream(getSocket().getOutputStream());
 			netOut.flush();
 			setNetIn(new ObjectInputStream(getSocket().getInputStream()));
 			new ClientMessageSender(getOut(), netOut);
-			BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-			SocketListener l = new SocketListener(this);
+			//BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+			new SocketListener(this);
 			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
-			
 			initNameGUI();
-
 			watcher = new DirWatcher(getDirectory(), this);
-
-			String msg;
-
+			//String msg;
 			do { 
-				
-				msg = stdin.readLine(); 
-				parseMessage(msg);
-
+				//msg = stdin.readLine(); 
+				//parseMessage(msg);
 				if (!getInQueue().isEmpty()) {
 					synchronized (getInQueue()) {
 						Iterator<String> incoming = getInQueue().iterator();
 						while (incoming.hasNext()) {
-							System.out.println(incoming.next());
+							String next = incoming.next();
+							System.out.println(next);
+							logger.add(next);
 							incoming.remove();
 						}
 					}
 				}
-			} while (!msg.equals("END"));
-
+			} while (true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+			logger.add("closing...");
 			System.out.println("closing...");
 			try {
 				socket.close();
@@ -235,13 +224,15 @@ public class Client extends Thread {
 		if(directory.split(" ")[0].equalsIgnoreCase("share")){
 			File check = new File(directory.split(" ")[1]);
 			if (check.isDirectory()){
-				System.out.println("Correct dir");
+				System.out.println("Correct directory");
+				logger.add("Correct directory");
 				check = null;
 				return true;
 			}
 			check = null;
 		}
-		System.out.println("Wrong dir");
+		logger.add("Wrong directory");
+		System.out.println("Wrong directory");
 		return false;
 		
 	}
@@ -252,11 +243,12 @@ public class Client extends Thread {
 		setDirectory("");
 		setInitDir(false);
 		state = 1;
+		logger.add("Enter directory to share");
 		
 		while(true){
 			
 			if(state == 0){
-				System.out.println("checking");
+				
 				if(validateDirectory(getDirectory())){
 					setDirectory(getDirectory().split(" ")[1]);
 					setInitDir(true);
@@ -275,11 +267,12 @@ public class Client extends Thread {
 	}
 	
 	public void initNameGUI(){
-		name = "";
 		state = 0;
+		logger.add("Enter name");
 		while(true){
 			if(state == 0){
 				try {
+					setName("");
 					Thread.currentThread();
 					Thread.sleep(100);
 				} catch (InterruptedException e) {}
@@ -292,6 +285,8 @@ public class Client extends Thread {
 				} catch (InterruptedException e) {}
 			}
 			else if(state == 2){ //name in use
+				setName("");
+				logger.add("Name already in use, enter new one");
 				try {
 					Thread.currentThread();
 					Thread.sleep(100);
@@ -299,8 +294,9 @@ public class Client extends Thread {
 				
 			}
 			else if(state == 3){ //server answer sets state to 2 or 3, if 3 name is ok
-				System.out.println("Ok, your name is: " + name);
-				setName(name);
+				System.out.println("Ok, your name is: " + getName());
+				logger.add("Ok, your name is: " + getName());
+				
 				break;
 			}
 		}
@@ -331,6 +327,7 @@ public class Client extends Thread {
 				state = 1;
 				name = "";
 				System.out.println("Name already in use");
+				logger.add("Name already in use");
 				while(name.length() == 0){
 					System.out.println("Enter your name: ");
 					name = new Scanner(System.in).nextLine();
@@ -374,6 +371,16 @@ public class Client extends Thread {
 	}
 	public void setDirectory(String directory) {
 		this.directory = directory;
+	}
+	public Logger getLogger() {
+		return logger;
+	}
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
+	
+	public String getGUILabel(){
+		return serverAddr +":" + Integer.toString(port);
 	}
 	
 	

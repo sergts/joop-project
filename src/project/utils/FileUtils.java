@@ -1,4 +1,4 @@
-package project.client;
+package project.utils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -11,7 +11,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.HashMap;
 
-import project.FileInfo;
 
 public class FileUtils {
 	

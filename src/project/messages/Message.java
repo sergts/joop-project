@@ -1,12 +1,11 @@
 package project.messages;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import project.FileInfo;
 import project.ClientSession;
 import project.client.Client;
+import project.utils.FileInfo;
 
 
 

@@ -1,69 +1,30 @@
-/*
-	File: FileShareApp.java
-	Copyright 2007 by Nadeem Abdul Hamid, Patrick Valencia
-
-	Permission to use, copy, modify, and distribute this software and its
-	documentation for any purpose and without fee is hereby granted, provided
-	that the above copyright notice appear in all copies and that both the
-	copyright notice and this permission notice and warranty disclaimer appear
-	in supporting documentation, and that the names of the authors or their
-	employers not be used in advertising or publicity pertaining to distri-
-	bution of the software without specific, written prior permission.
-
-	The authors and their employers disclaim all warranties with regard to
-	this software, including all implied warranties of merchantability and
-	fitness. In no event shall the authors or their employers be liable for 
-	any special, indirect or consequential damages or any damages whatsoever 
-	resulting from loss of use, data or profits, whether in an action of 
-	contract, negligence or other tortious action, arising out of or in 
-	connection with the use or performance of this software, even if 
-	advised of the possibility of such damage.
-
-	Date		Author				Changes
-	Feb 07 2007	Nadeem Abdul Hamid	Add to project (from source by P. Valencia)
- */
-
 
 package project.client;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.List;
-import java.util.logging.Level;
-
+import java.util.Iterator;
 import javax.swing.*;
-
-import project.*;
-import project.client.*;
 import project.messages.*;
 
 
-
 /**
- * The GUI for a simple peer-to-peer file sharing
- * application. 
- * 
- * @author Nadeem Abdul Hamid
+ * GUI design inspired by p2p app http://cs.berry.edu/~nhamid/p2p/framework-java.html 
+ * by Nadeem Abdul Hamid
+ *  
+ * @author Sergei Tsimbalist
+ *
  */
 @SuppressWarnings("serial")
-public class GUI extends JFrame
-{
+public class GUI extends JFrame{
 
 	private static final int FRAME_WIDTH = 700, FRAME_HEIGHT = 500;
-
-	private JPanel filesPanel, peersPanel, logsPanel;
-	private JPanel lowerFilesPanel, lowerPeersPanel;
-	private DefaultListModel filesModel, peersModel, logsModel;
-	private JList filesList, peersList, logsList;
-
-
-	private JButton downloadFilesButton, shareFilesButton, searchFilesButton;
-	private JButton removePeersButton, refreshPeersButton, setNameButton;
-
-	private JTextField shareTextField, searchTextField;
-	private JTextField setNameTextField;
-
+	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerPeersPanel;
+	private DefaultListModel<String> filesModel, usersModel, logsModel;
+	private JList<String> filesList, usersList, logsList;
+	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton;
+	private JTextField shareTextField, searchTextField, setNameTextField;
 	private Client client;
 
 
@@ -77,72 +38,62 @@ public class GUI extends JFrame
 		shareFilesButton.addActionListener(new ShareListener());
 		searchFilesButton = new JButton("Search");
 		searchFilesButton.addActionListener(new SearchListener());
-
 		setNameButton = new JButton("Set Name");
 		setNameButton.addActionListener(new SetNameListener());
-
 		shareTextField = new JTextField(15);
 		searchTextField = new JTextField(15);
 		setNameTextField = new JTextField(15);
-
 		setupFrame(this);
 
 		(new Thread() { public void run() {  }}).start();
 
-		new javax.swing.Timer(3000, new RefreshListener()).start();
+		new javax.swing.Timer(2000, new RefreshListener()).start();
 
 		
 	}
 
 	
-	private void setupFrame(JFrame frame)
-	{
+	private void setupFrame(JFrame frame){
 
 
-		frame = new JFrame("");
+		frame = new JFrame(client.getGUILabel());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 		frame.setLayout(new BorderLayout());
-
-
 		JPanel upperPanel = new JPanel();
 		JPanel lowerPanel = new JPanel();
-		JPanel lowestPanel = new JPanel();
-				
-		
+		JPanel lowestPanel = new JPanel();	
 		upperPanel.setLayout(new GridLayout(1, 2));
 		upperPanel.setPreferredSize(new Dimension(FRAME_WIDTH, (FRAME_HEIGHT * 1/2)));
 		lowerPanel.setLayout(new GridLayout(1, 2));
 		lowestPanel.setLayout(new GridLayout(1, 0));
 
-
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 
-		filesModel = new DefaultListModel();
-		filesList = new JList(filesModel);
-		peersModel = new DefaultListModel();
-		peersList = new JList(peersModel);
-		logsModel = new DefaultListModel();
-		logsList = new JList(logsModel);
-		filesPanel = initPanel(new JLabel("Available Files"), filesList, 250, 200);
-		peersPanel = initPanel(new JLabel("Peer List"), peersList, 150, 200);
-		logsPanel = initPanel(new JLabel("Logs"), logsList, 500, 100);
+		filesModel = new DefaultListModel<String>();
+		filesList = new JList<String>(filesModel);
+		usersModel = new DefaultListModel<String>();
+		usersList = new JList<String>(usersModel);
+		logsModel = new DefaultListModel<String>();
+		logsList = new JList<String>(logsModel);
+		filesPanel = initPanel(new JLabel("Files"), filesList, 300, 200, false);
+		usersPanel = initPanel(new JLabel("Users"), usersList, 150, 200, false);
+		logsPanel = initPanel(new JLabel("Logs"), logsList, 500, 100, true);
 		lowerFilesPanel = new JPanel();
 		lowerPeersPanel = new JPanel();
 
 		filesPanel.add(downloadFilesButton);
 		
-
+		lowerFilesPanel.add(searchTextField);
+		lowerFilesPanel.add(searchFilesButton);
 		lowerFilesPanel.add(shareTextField);
 		lowerFilesPanel.add(shareFilesButton);
-		lowerFilesPanel.add(searchTextField);
-		lowerFilesPanel.add(searchFilesButton);	
+		
 
 		lowerPeersPanel.add(setNameTextField);
 		lowerPeersPanel.add(setNameButton);
 
 		upperPanel.add(filesPanel);
-		upperPanel.add(peersPanel);
+		upperPanel.add(usersPanel);
 		lowerPanel.add(lowerFilesPanel);
 		lowerPanel.add(lowerPeersPanel);
 		lowestPanel.add(logsPanel);
@@ -158,34 +109,56 @@ public class GUI extends JFrame
 	}
 
 	
-	private JPanel initPanel(JLabel textField,JList list, int x, int y){
+	private JPanel initPanel(JLabel textField,JList<String> list, int x, int y, boolean bottom){
 		JPanel panel = new JPanel();
 		panel.add(textField);
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		JScrollPane scrollPane = new JScrollPane(list);
+		if(bottom){
+			scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {  
+		        public void adjustmentValueChanged(AdjustmentEvent e) {  
+		            e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
+		        }
+		    });
+		}
 		scrollPane.setPreferredSize(new Dimension(x, y));
 		panel.add(scrollPane);
 		return panel;
 	}
 	
-	
+	private void updateLogsList() {
+
+		Iterator<String> logs = client.getLogger().iterator();
+		String log;
+		int index = 0;
+		while(logs.hasNext()){
+			log = logs.next();
+			if(index >= logsModel.getSize()){
+				logsModel.addElement(log);
+			}
+			index++;
+			
+		}	
+	}
 
 	
 	private void updateFileList() {
 		filesModel.removeAllElements();
 		if(client.getFilesOnServer() != null){
+			String element;
 			for (String filename : client.getFilesOnServer().keySet()) {
-					filesModel.addElement(filename);
+				element = filename + " ("+ formatSize(client.getFilesOnServer().get(filename).getSize())+")";
+				filesModel.addElement(element);
 			}
 		}
 	}
 
 
-	private void updatePeerList(){
-		peersModel.removeAllElements();
+	private void updateUserList(){
+		usersModel.removeAllElements();
 		if(client.getUsersOnServer() != null){
 			for (String username : client.getUsersOnServer()) {
-				peersModel.addElement(username);
+				usersModel.addElement(username);
 			}
 		}
 	}
@@ -243,6 +216,7 @@ public class GUI extends JFrame
 			if(name.length() > 0){
 				if(client.getClientState() == 0 || client.getClientState() == 2){
 					client.getOut().addMessage(new InitName(name));
+					client.setName(name);
 					client.setState(1);
 				}
 			}
@@ -267,15 +241,23 @@ public class GUI extends JFrame
 				client.getOut().addMessage(new WhoMessage());
 			}
 			updateFileList();
-			updatePeerList();
+			updateUserList();
+			updateLogsList();
 			
 		}
+	}
+	
+	public static String formatSize(long bytes) {
+	    int unit = 1024;
+	    if (bytes < unit) return bytes + " B";
+	    int exp = (int) (Math.log(bytes) / Math.log(unit));
+	    char pre = ("kMGTPE").charAt(exp-1);
+	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
 
 
-	public static void main(String[] args) throws IOException
-	{
+	public static void main(String[] args) throws IOException{
 
 		new GUI();
 

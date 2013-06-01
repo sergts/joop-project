@@ -3,10 +3,7 @@ package project.messages;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 import project.ClientSession;
-import project.FileInfo;
 import project.client.Client;
 
 public class WhoMessage extends Message {

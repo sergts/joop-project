@@ -1,12 +1,10 @@
 package project.messages;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import project.ClientSession;
-import project.FileInfo;
 import project.client.Client;
-import project.client.FileUtils;
+import project.utils.FileInfo;
 
 public class UpdFilesMsg extends Message {
 	

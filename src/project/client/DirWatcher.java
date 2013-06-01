@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 
-import project.FileInfo;
 import project.messages.UpdFilesMsg;
+import project.utils.FileInfo;
 
 
 
@@ -28,6 +28,7 @@ public class DirWatcher extends Thread {
 	public DirWatcher(String path, Client client) {
 		this.path = path;
 		System.out.println("Sharing " + path);
+		client.getLogger().add("Sharing " + path);
 		directory = new File(path);
 		fileNames =  getFilesFormatted(directory.listFiles());
 		client.getOut().addMessage(new UpdFilesMsg(fileNames));
@@ -63,9 +64,6 @@ public class DirWatcher extends Thread {
 				client.getOut().addMessage(new UpdFilesMsg(fileNames));
 				
 			}
-			
-
-			
 				Thread.sleep(500);
 			} catch (InterruptedException e) {}
 		}
@@ -89,6 +87,8 @@ public class DirWatcher extends Thread {
 			if(file.isFile() && (!file.getName().substring(file.getName().length() - 4).equals(".tmp"))){
 				long size = file.length();
 				String path = file.getAbsolutePath();
+				
+				/*
 				String checkSum;
 				try {
 					checkSum = getFileCheckSum(file);
@@ -100,7 +100,10 @@ public class DirWatcher extends Thread {
 				} catch (FileNotFoundException e) {
 	
 					e.printStackTrace();
-				}
+				}*/
+				
+				FileInfo fileInfo = new FileInfo(size, path);
+				filesInDirectoryMap.put(file.getName(), fileInfo);
 			}
 		}
 
@@ -108,6 +111,7 @@ public class DirWatcher extends Thread {
 
 	}
 
+	@SuppressWarnings("unused")
 	private String getFileCheckSum(File file) throws NoSuchAlgorithmException,
 			FileNotFoundException {
 
@@ -132,7 +136,9 @@ public class DirWatcher extends Thread {
 
 	}
 
+	
 	private String byteArray2Hex(byte[] hash) {
+		
 		Formatter formatter = new Formatter();
 		for (byte b : hash) {
 			formatter.format("%02x", b);

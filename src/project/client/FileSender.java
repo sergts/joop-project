@@ -27,18 +27,14 @@ public class FileSender extends Thread{
             InputStream in = new BufferedInputStream(new FileInputStream(file) );
             StreamUtil stream = new StreamUtil();
             int bytes = stream.streamCopy(in, out);
-             
             in.close();
             out.flush();
             out.close();
-             
             System.out.println("Server: finished streaming file "+ file + ", " + bytes + " bytes sent.");
-             
             connectedSocket.close();
             serverSocket.close();
             System.out.println("Server: finished.");
 		} catch (Exception e) {
-			
 			e.printStackTrace();
 		}
         

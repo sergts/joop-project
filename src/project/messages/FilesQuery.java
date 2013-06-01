@@ -1,12 +1,11 @@
 package project.messages;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import project.ClientSession;
-import project.FileInfo;
 import project.client.Client;
+import project.utils.FileInfo;
 
 public class FilesQuery extends Message {
 
@@ -26,16 +25,10 @@ public class FilesQuery extends Message {
 	@Override
 	public void action(Client cli) {
 		
-		String files = "";
+		
 		if(getFiles() != null){
-			for(String file : getFiles().keySet()){
-				files += file + "\n";
-			}
-			
-			cli.getInQueue().add(files);
-			
 			cli.setFilesOnServer(getFiles());
-		}else cli.getInQueue().add("null");
+		}
 		
 	}
 
@@ -50,8 +43,6 @@ public class FilesQuery extends Message {
 		while (clients.hasNext()) {
 			ClientSession client = clients.next();
 			if(client.isAlive()){
-				
-				//files += client.getName() + " : \n";
 				for(String f : client.files.keySet()){
 					if(f.indexOf(filter) != -1){
 						key = f + " : " + client.getName();
@@ -66,23 +57,7 @@ public class FilesQuery extends Message {
 		
 		this.setFiles(filesMap);
 		sess.sendMessage(this);
-		
-		
-		
-		
-		/*String files = "";
-		Iterator<ClientSession> clients = sess.activeSessions.iterator();
-		while (clients.hasNext()) {
-			ClientSession client = clients.next();
-			if(client.isAlive()){
-				files += client.getName() + " : \n";
-				for(String f : client.files.keySet()){
-					files +=  "   " + f + "\n";
-				}
-			}
-			
-		}
-		sess.sendMessage(new TextMsg(files));*/
+
 		
 	}
 	

@@ -5,8 +5,8 @@ import java.io.ObjectOutputStream;
 
 
 
-import project.OutboundMessages;
 import project.messages.Message;
+import project.utils.OutboundMessages;
 
 public class ClientMessageSender extends Thread {
 	
@@ -25,7 +25,6 @@ public class ClientMessageSender extends Thread {
 			try {
 				netOut.reset();
 				netOut.writeObject(msg);
-				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

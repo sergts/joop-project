@@ -3,25 +3,19 @@ package project.client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.util.Collection;
-
-import project.OutboundMessages;
 import project.messages.Message;
 
 
 class SocketListener extends Thread {
 	private ObjectInputStream netIn;
 	private Socket socket;
-	private Collection<String> inQueue;
-	private OutboundMessages out;
+	
 	private Client cli;
 	
 	public SocketListener(Client cli) {
 		this.cli = cli;
 		this.netIn = cli.getNetIn();
 		this.socket = cli.getSocket();
-		this.inQueue = cli.getInQueue();
-		this.out = cli.getOut();
 		start();
 	}
 
@@ -29,7 +23,6 @@ class SocketListener extends Thread {
 		try {
 			while (true) { 		
 				Message msg = (Message) netIn.readObject();
-				
 				msg.action(cli);
 			}
 
@@ -39,6 +32,7 @@ class SocketListener extends Thread {
 			try {
 				if (!socket.isClosed()) {
 					socket.close();
+					cli.getLogger().add("closing...");
 					System.out.println("closing...");
 					return;
 				}

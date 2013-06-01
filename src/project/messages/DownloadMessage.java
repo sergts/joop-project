@@ -1,13 +1,10 @@
 package project.messages;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Iterator;
 
 
-import project.ActiveSessions;
 import project.ClientSession;
 import project.client.Client;
 
@@ -30,8 +27,6 @@ public class DownloadMessage extends Message {
 
 	@Override
 	public void action(Client cli) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -92,9 +87,6 @@ public class DownloadMessage extends Message {
 	    try {
 	        s = new Socket(ip, port);
 	        s2 = new Socket(ip2, port);
-
-	        // If the code makes it this far without an exception it means
-	        // something is using the port and has responded.
 	        System.out.println("--------------Port " + port + " is not available");
 	        return false;
 	    } catch (IOException e) {
