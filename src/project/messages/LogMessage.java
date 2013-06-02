@@ -1,24 +1,25 @@
 package project.messages;
 
-import project.client.Client;
 import project.server.ClientSession;
-
+import project.server.Server;
+import project.client.Client;
 
 @SuppressWarnings("serial")
-public class ExitMsg extends Message {
+public class LogMessage extends Message {
 
-	
+	public LogMessage(String m) {
+		super(m);
+	}
 
 	@Override
 	public void action(Client cli) {
-		
-		
+
 	}
 
 	@Override
 	public void action(ClientSession sess) {
-		sess.stopSession();
-		
+		Server.writeMsgIntoLogFile(getContents());
+
 	}
 
 }

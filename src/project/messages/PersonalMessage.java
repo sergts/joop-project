@@ -1,11 +1,12 @@
 package project.messages;
 
-import java.util.Iterator;
-
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+@SuppressWarnings("serial")
 public class PersonalMessage extends Message{
+
+	
 
 	public PersonalMessage(String m, String to){
 		super(m, to);
@@ -19,6 +20,13 @@ public class PersonalMessage extends Message{
 	@Override
 	public void action(ClientSession sess) {
 		
+		
+		ClientSession session = sess.activeSessions.get(this.getTo());
+		if (session!=null) {
+			session.sendMessage(new TextMsg(this.getContents()));
+			System.out.println("PM message sent");
+		}
+		/*
 		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 		System.out.println(" sessions iterator accessed");
 		
@@ -31,7 +39,7 @@ public class PersonalMessage extends Message{
 			}
 			
 			
-		}
+		}*/
 		
 		
 	}

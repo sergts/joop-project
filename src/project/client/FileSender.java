@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import project.messages.LogMessage;
+import project.utils.ByteConverter;
+
 public class FileSender extends Thread{
 	private String fileName;
 	private int port;
@@ -24,11 +27,8 @@ public class FileSender extends Thread{
         	ServerSocket serverSocket = new ServerSocket(port);
         	serverSocket.setSoTimeout(10000);
             File file = new File(fileName);
-            System.out.println("Server: waiting for a client to connect.");
-            client.getLogger().add("Waiting to send file " + file + " on port " + port);
+            client.getLogger().add("Waiting to upload file " + file + " on port " + port);
             Socket connectedSocket = serverSocket.accept();
-            System.out.println("Server: a client has connected.");
-            
             OutputStream out = connectedSocket.getOutputStream();
             client.getLogger().add("Sending file " + file + " on port " + port);
             InputStream in = new BufferedInputStream(new FileInputStream(file) );
@@ -37,15 +37,16 @@ public class FileSender extends Thread{
             in.close();
             out.flush();
             out.close();
-            System.out.println("Finished streaming file "+ file + ", " + bytes + " bytes sent.");
-            client.getLogger().add("Finished streaming file "+ file + ", " + bytes + " bytes sent.");
+            client.getLogger().add("Finished uploading file "+ file + ", " + ByteConverter.formatSize(bytes) + " sent.");
+            client.getOut().addMessage(new LogMessage(client.getName()+" finished uploading file "+ file + ", " + ByteConverter.formatSize(bytes) + " sent."));
             connectedSocket.close();
             serverSocket.close();
             
 		} catch (Exception e) {
-			client.getLogger().add("Error during file " + fileName + " sendnig process");
+			client.getLogger().add("Error during file " + fileName + " uploading process");
+			client.getOut().addMessage(new LogMessage(client.getName()+" has failed to upload " +fileName));
 		}finally{
-			client.getBusyPorts().remove(port);
+			client.removePort(port);
 		}
         
     }

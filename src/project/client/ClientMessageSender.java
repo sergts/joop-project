@@ -23,10 +23,8 @@ public class ClientMessageSender extends Thread {
 		while (true) {  
 			Message msg = outQueue.getMessage(); 
 			try {
-				synchronized(netOut){
-					netOut.reset();
-					netOut.writeObject(msg);
-				}
+				netOut.reset();
+				netOut.writeObject(msg);
 				
 			} catch (IOException e) {
 				System.out.println("Socket closed");

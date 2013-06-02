@@ -1,15 +1,15 @@
 package project.messages;
 
-import java.util.Iterator;
-
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+
+@SuppressWarnings("serial")
 public class OpenDownloadConnMsg extends Message{
 
 	
 
-	
+
 
 	public OpenDownloadConnMsg(String m){
 		super(m);
@@ -27,13 +27,20 @@ public class OpenDownloadConnMsg extends Message{
 		String ip = this.getContents().split("<")[0];
 		String file = this.getContents().split("<")[1];
 		int port = Integer.parseInt(this.getContents().split("<")[2]);
-		//System.out.println(this.getContents());
 		cli.downloadConn(file, ip,  port);
 		
 	}
 
 	@Override
 	public void action(ClientSession sess) {
+		
+		
+		ClientSession session = sess.activeSessions.get(this.getTo());
+		if(session!=null){
+			session.sendMessage(this);
+		}
+		
+		/*
 		if(to!=null){
 			Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 			System.out.println(" opendwncon sessions iterator accessed");
@@ -45,11 +52,7 @@ public class OpenDownloadConnMsg extends Message{
 				}
 			}
 			
-			
-			
-			
-			
-		}
+		}*/
 		
 	}
 

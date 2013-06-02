@@ -7,11 +7,11 @@ import java.io.*;
 import java.util.Iterator;
 import javax.swing.*;
 import project.messages.*;
+import project.utils.ByteConverter;
 
 
 /**
- * GUI design inspired by p2p app http://cs.berry.edu/~nhamid/p2p/framework-java.html 
- * by Nadeem Abdul Hamid
+ * GUI design inspired by app http://cs.berry.edu/~nhamid/p2p/framework-java.html 
  *  
  * @author Sergei Tsimbalist
  *
@@ -51,7 +51,6 @@ public class GUI extends JFrame{
 		setNameButton.addActionListener(new SetNameListener());
 		PMButton = new JButton("Send PM");
 		PMButton.addActionListener(new PMListener());
-		
 		shareTextField = new JTextField(15);
 		searchTextField = new JTextField(15);
 		setNameTextField = new JTextField(15);
@@ -191,7 +190,7 @@ public class GUI extends JFrame{
 		if(client.getFilesOnServer() != null){
 			String element;
 			for (String filename : client.getFilesOnServer().keySet()) {
-				element = filename + " : "+ formatSize(client.getFilesOnServer().get(filename).getSize());
+				element = filename + " : "+ ByteConverter.formatSize(client.getFilesOnServer().get(filename).getSize());
 				filesModel.addElement(element);
 				if(element.equals(selected))
 					filesList.setSelectedIndex(ind);
@@ -357,14 +356,7 @@ public class GUI extends JFrame{
 		}
 	}
 	
-	public static String formatSize(long bytes) {
-	    int unit = 1000;
-	    if (bytes < unit) return bytes + " B";
-	    int exp = (int) (Math.log(bytes) / Math.log(unit));
-	    char pre = ("kMGTPE").charAt(exp-1);
-	    return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-	}
-
+	
 
 
 	

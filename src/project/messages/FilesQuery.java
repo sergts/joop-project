@@ -3,13 +3,16 @@ package project.messages;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 import project.utils.FileInfo;
 
+
+@SuppressWarnings("serial")
 public class FilesQuery extends Message {
 
 	
+
 
 	public FilesQuery(String search){
 		super(search);
@@ -33,7 +36,7 @@ public class FilesQuery extends Message {
 		String filter = getContents();
 		
 		ConcurrentHashMap<String, FileInfo> filesMap = new ConcurrentHashMap<String, FileInfo>();
-		Iterator<ClientSession> clients = sess.activeSessions.iterator();
+		Iterator<ClientSession> clients = sess.activeSessions.iteratorSessions();
 		String key;
 		while (clients.hasNext()) {
 			ClientSession client = clients.next();

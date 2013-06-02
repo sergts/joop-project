@@ -1,25 +1,20 @@
 package project.messages;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Iterator;
 
-
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+
+@SuppressWarnings("serial")
 public class DownloadMessage extends Message {
 
 	
 	
 
-	private static final int MAX_PORT_NUMBER = 8887;
-	private static final int DEFAULT_PORT = 8000;
-	private int port;
 
 	public DownloadMessage(String m, String to) {
 		super(m, to);
-        port = DEFAULT_PORT;
+       
 	}
 
 	@Override
@@ -29,11 +24,23 @@ public class DownloadMessage extends Message {
 	@Override
 	public void action(ClientSession sess) {
 
+		
+		
+		ClientSession session = sess.activeSessions.get(this.getTo());
+		String filename = this.getContents();
+		if(session != null){
+			if(session.files.containsKey(filename)){
+				
+				session.sendMessage(new OpenUploadConnMsg(session.files.get(filename).getPath(), 
+						sess.getName() + "<" + filename + "<" + session.ip ));
+				System.out.println("upload message sent");
+			}
+		}
+		
+		/*
 		System.out.println(" staring download message at client session");
-
 		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 		System.out.println(" sessions iterator accessed");
-		
 		String filename = this.contents;
 		while (activeSessions.hasNext()) {
 			ClientSession session = activeSessions.next();
@@ -47,35 +54,10 @@ public class DownloadMessage extends Message {
 							sess.getName() + "<" + filename + "<" + session.ip ));
 					System.out.println("upload message sent");
 				}
-/*
-				for (String filename : session.files.keySet()) {
 
-					if (filename.equalsIgnoreCase(this.contents)) {
-                       
-						while(true){
-							if(available(port, sess.ip, session.ip)){
-								break;
-							}
-							else{
-								port = changePortValue(port);
-							}
-						}
-						
-						String send = session.files.get(filename).getPath() + "<" + port;
-
-						session.sendMessage(new OpenUploadConnMsg(send));
-						System.out.println("upload mesage sent");
-						String receive = filename + "<" + session.ip + "<" + port;
-
-						sess.sendMessage(new OpenDownloadConnMsg(receive));
-						System.out.println("downlaod message sent");
-
-
-					}
-				}*/
 
 			}
-		}
+		}*/
 
 	}
 	

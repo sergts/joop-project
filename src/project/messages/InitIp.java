@@ -1,11 +1,14 @@
 package project.messages;
 
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+
+@SuppressWarnings("serial")
 public class InitIp extends Message {
 
 	
+
 
 	public InitIp(String hostAddress) {
 		super(hostAddress);

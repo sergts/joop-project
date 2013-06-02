@@ -3,13 +3,15 @@ package project.messages;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+@SuppressWarnings("serial")
 public class WhoMessage extends Message {
 
 	
 	
+
 
 	public WhoMessage() {
 		super();
@@ -24,17 +26,24 @@ public class WhoMessage extends Message {
 
 
 	@Override
-	public void action(Client cli) {
+	public void action(Client client) {
 		
 		List<String> users = Arrays.asList(getContents().split(" "));
-		cli.setUsersOnServer(users);
+		client.setUsersOnServer(users);
 		
 	}
 
 	@Override
 	public void action(ClientSession sess) {
 		
+		String namesOfActiveSessions = "";
+		Iterator<String> names = sess.getActiveSessions().iteratorNames();
+		while(names.hasNext()){
+				namesOfActiveSessions += (names.next() + " ");
+		}
+		sess.sendMessage(new WhoMessage(namesOfActiveSessions));
 		
+		/*
 		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 		String namesOfActiveSessions = "";
 		while(activeSessions.hasNext()){
@@ -43,9 +52,9 @@ public class WhoMessage extends Message {
 				namesOfActiveSessions += (session.getName()+ " ");
 			}
 			
-		}
+		}*/
 		
-		sess.sendMessage(new WhoMessage(namesOfActiveSessions));
+		
 	}
 
 	

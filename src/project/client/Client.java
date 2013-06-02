@@ -34,7 +34,7 @@ public class Client extends Thread {
 	private CopyOnWriteArrayList<String> usersOnServer;
 	private Logger logger;
 	private boolean run;
-	private Set<Integer> busyPorts;   //properly synch this one
+	private Set<Integer> busyPorts;  
 	
 
 
@@ -66,40 +66,29 @@ public class Client extends Thread {
 			setSocket(new Socket(servAddr, port)); 
 		} catch (IOException e) {
 			logger.add("Server not visible");
-			System.out.println("Server not visible");
 			return;
 		}
 		try {
-			System.out.println("socket = " + getSocket());
-			logger.add("socket = " + getSocket());
+			logger.add("Connected to server " + getSocket());
 			netOut = new ObjectOutputStream(getSocket().getOutputStream());
 			netOut.flush();
 			setNetIn(new ObjectInputStream(getSocket().getInputStream()));
 			new ClientMessageSender(getOut(), netOut);
 			new SocketListener(this);
+			
 			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
 			initNameGUI();
+			
 			watcher = new DirWatcher(getDirectory(), this);
 			
 			while(run) { 
-				/*
-				if (!getInQueue().isEmpty()) {
-					synchronized (getInQueue()) {
-						Iterator<String> incoming = getInQueue().iterator();
-						while (incoming.hasNext()) {
-							String next = incoming.next();
-							System.out.println(next);
-							logger.add(next);
-							incoming.remove();
-						}
-					}
-				}*/
+				Thread.sleep(1000);
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			logger.add("closing from client");
-			System.out.println("closing from client");
 			try {
 				socket.close();
 			} catch (IOException e) {}
@@ -133,20 +122,27 @@ public class Client extends Thread {
 	
 	
 	public int getFreePort(){
-		int port = 8000;
-		int maxPort = 8887;
-		while(port <= maxPort){
-			if(port == maxPort) port = 8000;
-			if(!getBusyPorts().contains(port)){
-				getBusyPorts().add(port);
-				break;
+		synchronized(busyPorts){
+			int port = 8000;
+			int maxPort = 8887;
+			while(port <= maxPort){
+				if(port == maxPort) port = 8000;
+				if(!getBusyPorts().contains(port)){
+					getBusyPorts().add(port);
+					break;
+				}
+				port++;
 			}
-			port++;
-		}
-		return port;
-		
-		
+			return port;
+		}	
 	}
+	
+	public void removePort(int port){
+		synchronized(busyPorts){
+			busyPorts.remove(port);
+		}
+	}
+	
 
 
 	public Socket getSocket() {
@@ -211,7 +207,6 @@ public class Client extends Thread {
 	private boolean validateDirectory(String directory){	
 			File check = new File(directory);
 			if (check.isDirectory()){
-				System.out.println("Correct directory");
 				logger.add("Correct directory");
 				check = null;
 				return true;

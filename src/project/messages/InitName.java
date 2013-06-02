@@ -1,13 +1,15 @@
 package project.messages;
 
-import java.util.Iterator;
-
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+
+@SuppressWarnings("serial")
 public class InitName extends Message {
 
 
+
+	
 
 	public InitName(String myName) {
 		super(myName);
@@ -21,6 +23,17 @@ public class InitName extends Message {
 	@Override
 	public void action(ClientSession sess) {
 		
+		
+		if(sess.activeSessions.checkInSession(getContents(), sess)){
+			sess.sendMessage(new InitName("3"));
+			sess.name = getContents();
+		}else{
+			sess.sendMessage(new InitName("2"));
+		}
+		
+		
+		
+		/*
 		boolean nameNotUsed = true;
 		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
 		while (activeSessions.hasNext()) {
@@ -35,7 +48,7 @@ public class InitName extends Message {
 			sess.sendMessage(new InitName("3"));
 			sess.name = getContents();
 		}
-		
+		*/
 	}
 
 }

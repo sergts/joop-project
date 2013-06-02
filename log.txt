@@ -1,0 +1,4 @@
+[17:34:38 02/06/2013] sergio connected, Socket[addr=/127.0.0.1,port=53903,localport=8888]
+[17:34:48 02/06/2013] sergio finished uploading file h:\projects\test\c1p8.mat, 5.4 MB sent.
+[17:34:48 02/06/2013] sergio downloaded h:\projects\test\Downloads\c1p8.mat, 5.4 MB read.
+[17:35:02 02/06/2013] sergio left,  Socket[addr=/127.0.0.1,port=53903,localport=8888]

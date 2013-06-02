@@ -1,13 +1,16 @@
 package project.messages;
 
-import project.ClientSession;
 import project.client.Client;
+import project.server.ClientSession;
 
+@SuppressWarnings("serial")
 public class OpenUploadConnMsg extends Message {
 
 	
 	
  
+
+
 
 	public OpenUploadConnMsg(String m) {
 	
@@ -24,15 +27,8 @@ public class OpenUploadConnMsg extends Message {
 	
 		System.out.println("upload message received");
 		System.out.println(this.getContents());
-		/*
-		String file = this.getContents().split("<")[0];
-		int port = Integer.parseInt(this.getContents().split("<")[1]);
-		//System.out.println(this.getContents());
-		
-		//cli.uploadConn(file, port);
-		  */
 		 
-		cli.uploadConn(this.getContents(), to);
+		cli.uploadConn(this.getContents(), getTo());
 		
 		
 	}

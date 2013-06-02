@@ -10,6 +10,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 
+import project.messages.LogMessage;
+import project.utils.ByteConverter;
+
 public class FileReceiver extends Thread {
 	private String fileName;
 	private String ip;
@@ -30,9 +33,7 @@ public class FileReceiver extends Thread {
 	}
     public void run() {
         try {
-        	System.out.println(ip + " " + port);
             Socket clientSocket = new Socket(ip, port);
-            
             File outputFile;
 			File tmpDir = new File(directory+"//Downloads");
 			if (!tmpDir.exists()) {
@@ -61,7 +62,6 @@ public class FileReceiver extends Thread {
 					}
 				}
 			}
-            System.out.println("Client: connected to server.");
             client.getLogger().add("Connected to uploader: " + ip + ":" + port);
             
             InputStream in = clientSocket.getInputStream();
@@ -75,15 +75,15 @@ public class FileReceiver extends Thread {
 				
 				
 				
-				/*File newOutputFile = new File(directory, fileName);
-				copyFile(outputFile, newOutputFile);*/
+				//File newOutputFile = new File(directory, fileName);
+				//copyFile(outputFile, newOutputFile, client);
 				
-				System.out.println("Client: received " + outputFile + ", " + bytes + " bytes read.");
-	            client.getLogger().add("Received " + outputFile + ", " + bytes + " bytes read.");
-	            
+	            client.getLogger().add("Downloaded " + outputFile + ", " + ByteConverter.formatSize(bytes) + " read.");
+	            client.getOut().addMessage(new LogMessage(client.getName() + " downloaded " + outputFile + ", " + ByteConverter.formatSize(bytes) + " read.") );
             }catch(Exception e){
-            	System.out.println("Error during file " + fileName + " receiving.");
-	            client.getLogger().add("Error during file " + fileName + " receiving.");
+	            client.getLogger().add("Error during file " + fileName + " downloaing.");
+	            client.getOut().addMessage(new LogMessage(client.getName()+
+	            		" has failed to receive " + outputFile ) );
             	
             }finally{
 				
@@ -97,13 +97,14 @@ public class FileReceiver extends Thread {
 			}
 		} catch (Exception e) {
 			
-			client.getLogger().add("Error during file " + fileName + " receiving process.");
+			client.getLogger().add("Error during file " + fileName + " downloading process.");
 		}finally{
-			client.getBusyPorts().remove(port);
+			client.removePort(port);
 		}
     }
     
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
+    public static void copyFile(File sourceFile, File destFile, Client client) throws IOException {
+    	
         if(!destFile.exists()) {
             destFile.createNewFile();
         }
@@ -123,6 +124,7 @@ public class FileReceiver extends Thread {
             if(destination != null) {
                 destination.close();
             }
+            
         }
     }
 }

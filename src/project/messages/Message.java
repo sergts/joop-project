@@ -3,8 +3,7 @@ package project.messages;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 
-import project.ClientSession;
-import project.client.Client;
+
 import project.utils.FileInfo;
 
 
@@ -16,9 +15,9 @@ public abstract class Message implements Serializable, Actable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	String contents;
-	String to;
-	ConcurrentHashMap<String, FileInfo> files;
+	private String contents;
+	private String to;
+	private ConcurrentHashMap<String, FileInfo> files;
 	
 	
 	public ConcurrentHashMap<String, FileInfo> getFiles() {

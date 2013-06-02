@@ -1,4 +1,4 @@
-package project;
+package project.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -47,7 +47,8 @@ public class ClientSession extends Thread {
 				((Message)netIn.readObject()).action(this);
 			}
 			super.setName(name); 				
-			activeSessions.addSession(this); 
+			//activeSessions.addSession(this); 
+			Server.writeMsgIntoLogFile(name + " connected, " + socket.toString());
 			
 			while (run) { 						
 				Message incomingMessage = (Message) netIn.readObject();
@@ -57,11 +58,13 @@ public class ClientSession extends Thread {
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			System.out.println(getName() + " crashed");
+			Server.writeMsgIntoLogFile(name + " crashed,  " + socket.toString());
 		} finally {
 			System.out.println(getName() + " leaves");
-			activeSessions.removeSess(this);
+			Server.writeMsgIntoLogFile(name + " left,  " + socket.toString());
+			//activeSessions.removeSess(this);
+			activeSessions.removeSession(this);
 			try {
 				getSocket().close();
 			} catch (IOException e) {}
