@@ -13,6 +13,11 @@ import project.utils.OutboundMessages;
 
 
 
+/**
+ * This class implement the logic of the server side communicating with 
+ * the client
+ *
+ */
 public class ClientSession extends Thread {
 	private Socket socket;
 	private OutboundMessages outQueue;
@@ -25,6 +30,12 @@ public class ClientSession extends Thread {
 	private boolean run;
 	
 	
+	/**
+	 * @param s - socket used for connection
+	 * @param out - OutboundMessages of the client
+	 * @param as - activesessions on the server
+	 * @throws IOException
+	 */
 	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
 		
 		setSocket(s);
@@ -47,7 +58,7 @@ public class ClientSession extends Thread {
 				((Message)netIn.readObject()).action(this);
 			}
 			super.setName(name); 				
-			//activeSessions.addSession(this); 
+			 
 			Server.writeMsgIntoLogFile(name + " connected, " + socket.toString());
 			
 			while (run) { 						
@@ -63,7 +74,6 @@ public class ClientSession extends Thread {
 		} finally {
 			System.out.println(getName() + " leaves");
 			Server.writeMsgIntoLogFile(name + " left,  " + socket.toString());
-			//activeSessions.removeSess(this);
 			activeSessions.removeSession(this);
 			try {
 				getSocket().close();
@@ -74,6 +84,9 @@ public class ClientSession extends Thread {
 	
 	
 	
+	/**
+	 * @param msg - message sent to client
+	 */
 	public synchronized void sendMessage(Message msg) {
 		try {
 			if (!getSocket().isClosed()) {
@@ -89,18 +102,30 @@ public class ClientSession extends Thread {
 		}
 	}
 
+	/**
+	 * @return socket
+	 */
 	public Socket getSocket() {
 		return socket;
 	}
 
+	/**
+	 * @param socket - socket to be set
+	 */
 	public void setSocket(Socket socket) {
 		this.socket = socket;
 	}
 
+	/**
+	 * @return active session on the server
+	 */
 	public ActiveSessions getActiveSessions() {
 		return activeSessions;
 	}
 
+	/**
+	 * stops the session
+	 */
 	public void stopSession() {
 		run = false;
 		

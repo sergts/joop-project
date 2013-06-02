@@ -6,6 +6,11 @@ import project.client.Client;
 import project.server.ClientSession;
 import project.utils.FileInfo;
 
+/**
+ *This class implements the logic of the message used to
+ *update information about files of clients by dirwatcher
+ *
+ */
 @SuppressWarnings("serial")
 public class UpdFilesMsg extends Message {
 	
@@ -13,12 +18,13 @@ public class UpdFilesMsg extends Message {
 
 	
 
+	/**
+	 * @param files - files the client has (filename, fileinfo)
+	 */
 	public UpdFilesMsg(ConcurrentHashMap<String, FileInfo> files) {
 		super(files);
 	}
-	public UpdFilesMsg(){
-		super();
-	}
+	
 
 	@Override
 	public void action(Client cli) {

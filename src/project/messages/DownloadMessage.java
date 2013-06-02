@@ -5,6 +5,11 @@ import project.client.Client;
 import project.server.ClientSession;
 
 
+/**
+ * This message implements the logic of message sent
+ * by a client intending to download a file from another client
+ *
+ */
 @SuppressWarnings("serial")
 public class DownloadMessage extends Message {
 
@@ -12,6 +17,10 @@ public class DownloadMessage extends Message {
 	
 
 
+	/**
+	 * @param m -  filename of the file to download
+	 * @param to - owner of the file
+	 */
 	public DownloadMessage(String m, String to) {
 		super(m, to);
        
@@ -37,69 +46,11 @@ public class DownloadMessage extends Message {
 			}
 		}
 		
-		/*
-		System.out.println(" staring download message at client session");
-		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
-		System.out.println(" sessions iterator accessed");
-		String filename = this.contents;
-		while (activeSessions.hasNext()) {
-			ClientSession session = activeSessions.next();
-			if (session.getName().equals(this.to)) {
-
-				
-				
-				if(session.files.containsKey(filename)){
-					
-					session.sendMessage(new OpenUploadConnMsg(session.files.get(filename).getPath(), 
-							sess.getName() + "<" + filename + "<" + session.ip ));
-					System.out.println("upload message sent");
-				}
-
-
-			}
-		}*/
+		
 
 	}
 	
-	/*
-	private int changePortValue(int currentPort) {
-		
-		if(currentPort==MAX_PORT_NUMBER){
-			return DEFAULT_PORT;
-		}
-		 return ++currentPort;
-		
-	}
 
-	private static boolean available(int port, String ip, String ip2) {
-	    System.out.println("--------------Testing port " + port);
-	    Socket s = null;
-	    Socket s2 = null;
-	    try {
-	        s = new Socket(ip, port);
-	        s2 = new Socket(ip2, port);
-	        System.out.println("--------------Port " + port + " is not available");
-	        return false;
-	    } catch (IOException e) {
-	        System.out.println("--------------Port " + port + " is available");
-	        return true;
-	    } finally {
-	        if( s != null){
-	            try {
-	                s.close();
-	                
-	            } catch (IOException e) {}
-	            
-	        }
-	        if( s2 != null){
-	            try {
-	                s2.close();
-	            } catch (IOException e) {}
-	            
-	        }
-	    }
-	}
-	*/
 	
 
 }

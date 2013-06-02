@@ -1,20 +1,41 @@
 package project.messages;
 
+import java.lang.reflect.Constructor;
+
 import project.client.Client;
 import project.server.ClientSession;
 
 
+/**
+ * This class implements the logic of the message initiating
+ * download connection for file transfrer on the downloading side
+ *
+ */
 @SuppressWarnings("serial")
 public class OpenDownloadConnMsg extends Message{
 
-	
+	private static int IP_INDEX = 0;
+	private static int FILE_INDEX = 1;
+	private static int PORT_INDEX = 2;
 
 
 
+	/**
+	 * {@link Constructor}
+	 * @param m - message contents
+	 */
 	public OpenDownloadConnMsg(String m){
 		super(m);
 	}
 	
+	
+	/**
+	 * {@link Constructor}
+	 * @param m - message contents
+	 * @param m - contents 
+	 * 
+	 * @param to - whom is the message addressed to
+	 */
 	public OpenDownloadConnMsg(String m, String to){
 		super(m, to);
 	}
@@ -24,9 +45,9 @@ public class OpenDownloadConnMsg extends Message{
 		
 		System.out.println("download message received");
 		System.out.println(this.getContents());
-		String ip = this.getContents().split("<")[0];
-		String file = this.getContents().split("<")[1];
-		int port = Integer.parseInt(this.getContents().split("<")[2]);
+		String ip = this.getContents().split("<")[IP_INDEX];
+		String file = this.getContents().split("<")[FILE_INDEX];
+		int port = Integer.parseInt(this.getContents().split("<")[PORT_INDEX]);
 		cli.downloadConn(file, ip,  port);
 		
 	}
@@ -40,19 +61,7 @@ public class OpenDownloadConnMsg extends Message{
 			session.sendMessage(this);
 		}
 		
-		/*
-		if(to!=null){
-			Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
-			System.out.println(" opendwncon sessions iterator accessed");
-			while (activeSessions.hasNext()) {
-				ClientSession session = activeSessions.next();
-				if (session.getName().equals(this.to)) {
-					session.sendMessage(this);
-					
-				}
-			}
-			
-		}*/
+		
 		
 	}
 

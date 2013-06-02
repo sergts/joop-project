@@ -14,6 +14,11 @@ import java.util.Calendar;
 import project.utils.OutboundMessages;
 
 
+/**
+ * This class implement the logic of a server used
+ * for interacting with clients
+ *
+ */
 public class Server {
 	private static final int PORT = 8888;
 	private static File logFile = new File("log.txt");
@@ -42,7 +47,11 @@ public class Server {
 		}
 	}
 	
-	 public static synchronized void writeMsgIntoLogFile(String contents){
+	 /**
+	  * writes client activity into a log file
+	 * @param contents - message contents
+	 */
+	public static synchronized void writeMsgIntoLogFile(String contents){
 		   
 			try {
 				FileWriter writer = new FileWriter(logFile,true);
@@ -53,14 +62,18 @@ public class Server {
 				bw.close();
 				writer.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				
+				System.out.println("logifaili kirjutamise viga!");
+				//e.printStackTrace();
 			}
 		
 		   
 	   }
 	   
-	   public static synchronized String getTimeStamp(){
+	   /**
+	 * @return - timestamp string
+	 */
+	public static synchronized String getTimeStamp(){
 			Calendar cal = Calendar.getInstance();
 	    	cal.getTime();
 	    	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");

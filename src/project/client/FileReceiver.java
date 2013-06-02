@@ -2,17 +2,22 @@ package project.client;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.net.Socket;
-import java.nio.channels.FileChannel;
+
 
 import project.messages.LogMessage;
 import project.utils.ByteConverter;
 
+/**
+ * Implements the logic of the class responsible for
+ * file transfer on the receiving side
+ * @author Roman
+ *
+ */
 public class FileReceiver extends Thread {
 	private String fileName;
 	private String ip;
@@ -23,6 +28,14 @@ public class FileReceiver extends Thread {
 
 	
 	
+	/**
+	 * {@link Constructor}
+	 * @param fileName - name of file to download
+	 * @param ip - ip of a client to download from
+	 * @param port - port used for transer
+	 * @param directory - directory to store the file (shared dir)
+	 * @param client - client downloading a file
+	 */
 	public FileReceiver(String fileName, String ip, int port, String directory, Client client) {
 		this.fileName = fileName;
 		this.ip = ip; 
@@ -35,13 +48,15 @@ public class FileReceiver extends Thread {
         try {
             Socket clientSocket = new Socket(ip, port);
             File outputFile;
+            // check if directory for download files exist
 			File tmpDir = new File(directory+"//Downloads");
-			if (!tmpDir.exists()) {
-				tmpDir.mkdir();
+			if (!tmpDir.exists()) { // if not, create
+				tmpDir.mkdir(); 
 			}
 			tmpDir.mkdir();
 			
-			File checkOutputFile = new File(directory+"//Downloads", fileName);
+			File checkOutputFile = new File(directory+"//Downloads", fileName); 
+			 // check if file with the specified name already exist in this dir
 			if(!checkOutputFile.exists()){
 			outputFile = new File(directory+"//Downloads", fileName);
 			}
@@ -64,19 +79,15 @@ public class FileReceiver extends Thread {
 			}
             client.getLogger().add("Connected to uploader: " + ip + ":" + port);
             
-            InputStream in = clientSocket.getInputStream();
-            OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile) );
+            
+            InputStream in = clientSocket.getInputStream(); // read from
+            OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile) ); // write
              
             StreamUtil stream = new StreamUtil();
             int bytes;
             try {
             	bytes = stream.streamCopy(in, out);
-				//String newPath = outputFile.getAbsolutePath().replaceAll("tmp\\\\","");
 				
-				
-				
-				//File newOutputFile = new File(directory, fileName);
-				//copyFile(outputFile, newOutputFile, client);
 				
 	            client.getLogger().add("Downloaded " + outputFile + ", " + ByteConverter.formatSize(bytes) + " read.");
 	            client.getOut().addMessage(new LogMessage(client.getName() + " downloaded " + outputFile + ", " + ByteConverter.formatSize(bytes) + " read.") );
@@ -103,29 +114,6 @@ public class FileReceiver extends Thread {
 		}
     }
     
-    public static void copyFile(File sourceFile, File destFile, Client client) throws IOException {
-    	
-        if(!destFile.exists()) {
-            destFile.createNewFile();
-        }
-
-        FileChannel source = null;
-        FileChannel destination = null;
-
-        try {
-            source = new FileInputStream(sourceFile).getChannel();
-            destination = new FileOutputStream(destFile).getChannel();
-            destination.transferFrom(source, 0, source.size());
-        }
-        finally {
-            if(source != null) {
-                source.close();
-            }
-            if(destination != null) {
-                destination.close();
-            }
-            
-        }
-    }
+    
 }
 

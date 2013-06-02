@@ -5,17 +5,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 import project.messages.LogMessage;
 import project.utils.ByteConverter;
 
+/**
+ * This class implements the logic of the sending side 
+ * during the file transfer
+ *
+ */
 public class FileSender extends Thread{
 	private String fileName;
 	private int port;
 	private Client client;
 	
+	/**
+	 * {@link Constructor}
+	 * @param file -  file to be sent
+	 * @param port -  port used for transfer connection
+	 * @param client - client who sends the file
+	 */
 	public FileSender(String file, int port, Client client) {
 		this.fileName = file;
 		this.port = port;
@@ -28,7 +40,7 @@ public class FileSender extends Thread{
         	serverSocket.setSoTimeout(10000);
             File file = new File(fileName);
             client.getLogger().add("Waiting to upload file " + file + " on port " + port);
-            Socket connectedSocket = serverSocket.accept();
+            Socket connectedSocket = serverSocket.accept(); 
             OutputStream out = connectedSocket.getOutputStream();
             client.getLogger().add("Sending file " + file + " on port " + port);
             InputStream in = new BufferedInputStream(new FileInputStream(file) );

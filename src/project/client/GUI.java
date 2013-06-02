@@ -5,15 +5,18 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Iterator;
+import java.util.regex.Pattern;
+
 import javax.swing.*;
+
 import project.messages.*;
 import project.utils.ByteConverter;
 
 
 /**
- * GUI design inspired by app http://cs.berry.edu/~nhamid/p2p/framework-java.html 
- *  
- * @author Sergei Tsimbalist
+ * GUI layout inspired by http://cs.berry.edu/~nhamid/p2p/framework-java.html 
+ *  GUI for file sharing application, it has the files, users, logs list
+ *  it allows to download, search files, send personal messages
  *
  */
 @SuppressWarnings("serial")
@@ -27,16 +30,24 @@ public class GUI extends JFrame{
 	private JTextField shareTextField, searchTextField, setNameTextField, PMTextField;
 	private Client client;
 	
+	/**
+	 * Choose server address and port
+	 */
+	private static final String servAddress = "localhost";
+	private static final int servPort = 8888;
+	
+	
 	public static void main(String[] args) throws IOException{
 
-		new GUI("localhost", 8888);
+		new GUI();
 
 	}
 
 
-	private GUI(String server, int port){
+	private GUI(){
 		
-		client = new Client(server, port);
+		client = new Client(servAddress, servPort);
+		
 		
 
 		downloadFilesButton = new JButton("Download");
@@ -164,8 +175,10 @@ public class GUI extends JFrame{
 		return panel;
 	}
 	
+	/**
+	 * Updates list of logs. New logs are appended to the bottom.
+	 */
 	private void updateLogsList() {
-
 		Iterator<String> logs = client.getLogger().iterator();
 		String log;
 		int index = 0;
@@ -179,7 +192,9 @@ public class GUI extends JFrame{
 		}	
 	}
 
-	
+	/**
+	 * Updates list of files from hashmap on clients side. This hashmap is also updated periodically.
+	 */
 	private void updateFileList() {
 		String selected = "null";
 		if(filesList.getSelectedValue() != null){
@@ -200,15 +215,16 @@ public class GUI extends JFrame{
 	}
 
 
+	/**
+	 * Updates list of users. User list is stored on clients side and is refereshed periodically.
+	 */
 	private void updateUserList(){
-		
 		String selected = "null";
 		if(usersList.getSelectedValue() != null){
 			selected = usersList.getSelectedValue();
 		}
 		int ind = 0;
-		
-		
+
 		usersModel.removeAllElements();
 		if(client.getUsersOnServer() != null){
 			
@@ -222,39 +238,46 @@ public class GUI extends JFrame{
 		}
 	}
 
-	
+	/**
+	 * 
+	 * @author Serge
+	 * IF file is selected and DOWNLOAD button is pressed, then query about downloading 
+	 * is sent to the server.
+	 *
+	 */
 	class DownloadListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if(filesList.getSelectedValue() != null){
 				String selected = filesList.getSelectedValue().toString();
 				String filename = selected.substring(0, selected.indexOf(':') - 1);
-				
 				String sub = (selected.substring(selected.indexOf(':') + 1,selected.length()));
 				String owner = sub.substring(0, sub.indexOf(':')).trim();
-				
-				System.out.println(filename + ' ' + owner);
-				
 				client.getOut().addMessage(new DownloadMessage(filename, owner));
 			}
 		}
 	}
-
+	/**
+	 * 
+	 * @author Serge
+	 * Allows to set and reset a shared folder. 
+	 *
+	 */
 	class ShareListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			
-			
 			String dir = shareTextField.getText().trim();
-			if(!client.isInitDir() || client.getClientState() == 3){
-				if(!client.isInitDir()){
-					client.setDirectory(dir);
-					client.setState(0);
-				}else{
-					if (!dir.equals("")) {
-						client.resetDir(dir);
+			if(dir.length() > 0){
+				if(!client.isInitDir() || client.getClientState() == 3){
+					if(!client.isInitDir()){
+						client.setDirectory(dir);
+						client.setState(0);
+					}else{
+						if (!dir.equals("")) {
+							client.resetDir(dir);
+						}
+						shareTextField.requestFocusInWindow();
+						
+						updateFileList();
 					}
-					shareTextField.requestFocusInWindow();
-					
-					updateFileList();
 				}
 			}
 			
@@ -263,23 +286,33 @@ public class GUI extends JFrame{
 		}
 	}
 
+	/**
+	 * 
+	 * @author Serge
+	 * Send query to show only these files, which have substring of search value.
+	 *
+	 */
 	class SearchListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String search = searchTextField.getText().trim();
-			client.getOut().addMessage(new FilesQuery(search));
-
+			if(search.length() > 0 ) client.getOut().addMessage(new FilesQuery(search));
 			searchTextField.requestFocusInWindow();
 			searchTextField.setText("");
 			
 		}
 	}
-	
+	/**
+	 * Sets name at the start of the program
+	 * @author Serge
+	 *
+	 */
 	class SetNameListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String name = setNameTextField.getText().trim();
 			if(name.length() > 0){
-				if(name.indexOf(" ") != -1 || name.indexOf(":") != -1 ){
-					client.getLogger().add("Illegal name, don't use whitespaces or colons");
+				Pattern p = Pattern.compile("[^a-zA-Z0-9]");
+				if(p.matcher(name).find()){
+					client.getLogger().add("Illegal name, should be alphanumeric");
 				}
 				else if(client.getClientState() == 0 || client.getClientState() == 2){
 					client.getOut().addMessage(new InitName(name));
@@ -296,12 +329,19 @@ public class GUI extends JFrame{
 			
 		}
 	}
-	
+	/**
+	 * If some user if selected, it then sends a private message to him.
+	 * @author Serge
+	 *
+	 */
 	class PMListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String msg = PMTextField.getText().trim();
 			String thisUsr = client.getName() + " (you)";
-			if(usersList.getSelectedValue() != null && msg.length() > 0 && !usersList.getSelectedValue().equals(thisUsr)){
+			if(usersList.getSelectedValue().equals(thisUsr) && msg.length() > 0){
+				client.getLogger().add("I'm sorry, " +client.getName()+", I'm afraid I can't do that.");
+			}
+			else if(usersList.getSelectedValue() != null && msg.length() > 0){
 				String message = "("+client.getName()+"): "+msg;
 				String to  = usersList.getSelectedValue();
 				client.getOut().addMessage(new PersonalMessage(message, to));
@@ -318,7 +358,11 @@ public class GUI extends JFrame{
 		}
 	}
 
-
+	/**
+	 * Refreshed data in GUI also queries new user list.
+	 * @author Serge
+	 *
+	 */
 	class RefreshListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
@@ -343,7 +387,11 @@ public class GUI extends JFrame{
 			
 		}
 	}
-	
+	/**
+	 * Queries new data from the server and refreshes it in GUI
+	 * @author Serge
+	 *
+	 */
 	class RefreshDataListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			

@@ -8,6 +8,11 @@ import project.server.ClientSession;
 import project.utils.FileInfo;
 
 
+/**
+ * This message implements the logic of the message used 
+ * to gain information about files of clients on the
+ *
+ */
 @SuppressWarnings("serial")
 public class FilesQuery extends Message {
 

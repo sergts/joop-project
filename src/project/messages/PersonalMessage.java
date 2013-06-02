@@ -1,13 +1,26 @@
 package project.messages;
 
+import java.lang.reflect.Constructor;
+
 import project.client.Client;
 import project.server.ClientSession;
 
+/**
+ * This class implements the logic of the message
+ * sent to other users as a private message
+ * 
+ *
+ */
 @SuppressWarnings("serial")
 public class PersonalMessage extends Message{
 
 	
 
+	/**
+	 * {@link Constructor}
+	 * @param m  - content
+	 * @param to - receiver
+	 */
 	public PersonalMessage(String m, String to){
 		super(m, to);
 	}

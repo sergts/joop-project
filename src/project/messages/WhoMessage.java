@@ -1,11 +1,17 @@
 package project.messages;
 
+import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import project.client.Client;
 import project.server.ClientSession;
 
+/**
+ * This class implements the logic of the message for
+ * exchanging information about the users on the server
+ *
+ */
 @SuppressWarnings("serial")
 public class WhoMessage extends Message {
 
@@ -13,12 +19,22 @@ public class WhoMessage extends Message {
 	
 
 
+	/**
+	 * {@link Constructor}
+	 * used for querying the server
+	 */
 	public WhoMessage() {
 		super();
 	}
 	
 	
 	
+	/**
+	 * {@link Constructor}
+	 * used as a response by server
+	 * @param m - who's on the server
+	 * 
+	 */
 	public WhoMessage(String m) {
 		super(m);
 	}

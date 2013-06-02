@@ -5,6 +5,7 @@ package project.client;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
+import java.lang.reflect.Constructor;
 
 import project.messages.UpdFilesMsg;
 import project.utils.FileInfo;
@@ -13,6 +14,11 @@ import project.utils.FileInfo;
 
 
 
+/**
+ * This class implements the logic of an object responsible
+ * for observing the shared directory
+ *
+ */
 public class DirWatcher extends Thread {
 	private String path;
 	private HashMap<File, Long> dir = new HashMap<File, Long>();
@@ -21,10 +27,16 @@ public class DirWatcher extends Thread {
 	private long lastmod;
 	private Client client;
 	private boolean run = true;
+	private static int MODIFIED_TIME_DIFFERENCE = 3000;
 	
 
 	
 
+	/**
+	 * {@link Constructor}
+	 * @param path
+	 * @param client
+	 */
 	public DirWatcher(String path, Client client) {
 		
 		this.path = path;
@@ -41,6 +53,9 @@ public class DirWatcher extends Thread {
 		start();
 	}
 
+	/**
+	 * @return - directory of files w/ size  map
+	 */
 	public HashMap<File, Long> getMap() {
 		return dir;
 	}
@@ -49,7 +64,7 @@ public class DirWatcher extends Thread {
 		long modified;
 		while (run) {
 			modified = directory.lastModified();
-			if(modified > lastmod + 3000){
+			if(modified > lastmod + MODIFIED_TIME_DIFFERENCE){
 				fileNames =  getFilesFormatted(directory.listFiles());
 				lastmod = modified;
 				client.getOut().addMessage(new UpdFilesMsg(fileNames));
@@ -64,6 +79,9 @@ public class DirWatcher extends Thread {
 		
 	}
 	
+	/**
+	 * @return - files with file information map
+	 */
 	public ConcurrentHashMap<String, FileInfo> getFiles(){
 		return fileNames;
 	}
@@ -75,6 +93,11 @@ public class DirWatcher extends Thread {
 	
 	
 
+	/**
+	 * converts an array of files into a map of files with fileinfo
+	 * @param files - file array in dir
+	 * @return - map of files with fileinfo
+	 */
 	public ConcurrentHashMap<String, FileInfo> getFilesFormatted(File[] files) {
 
 		ConcurrentHashMap<String, FileInfo> filesInDirectoryMap = new ConcurrentHashMap<String, FileInfo>();

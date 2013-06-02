@@ -3,6 +3,7 @@ package project.client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.io.*;
@@ -17,6 +18,12 @@ import project.utils.Logger;
 import project.utils.OutboundMessages;
 
 
+/**
+ * This class implements the logic of a client side of the
+ * client-server interaction
+ * @author Roman
+ *
+ */
 public class Client extends Thread {
 
 	private DirWatcher watcher;
@@ -35,14 +42,27 @@ public class Client extends Thread {
 	private Logger logger;
 	private boolean run;
 	private Set<Integer> busyPorts;  
-	
+	private final static int START_INDEX = 0; 
+	private final static int OK_DIR_STATE = 0;
+	private final static int WRONG_DIR_STATE = 1;
+	private final static int NAMEINIT_START_STATE = 0;
+    private final static int NAME_ACK_WAIT_STATE = 1;
+    private final static int NAME_USED_STATE = 2;
+    private final static int OK_NAME_STATE = 3;
 
-
+	/**
+	 * {@link Constructor}
+	 * @param server - server address
+	 * @param port - port used for connection
+	 */
 	public Client(String server, int port){
 		this.port = port;
 		this.serverAddr = server;
 		start();
 	}
+	/**
+	 * default {@link Constructor}
+	 */
 	public Client(){
 		port = 8888;
 		serverAddr = "localhost";
@@ -52,12 +72,13 @@ public class Client extends Thread {
 
 
 
+	
 	public void run(){
 		
-		setBusyPorts(new HashSet<Integer>());
-		setLogger(new Logger());
-		setInQueue(new LinkedList<String>()); 
-		setOut(new OutboundMessages());
+		setBusyPorts(new HashSet<Integer>());    
+		setLogger(new Logger());               
+		setInQueue(new LinkedList<String>());   // incoming messages
+		setOut(new OutboundMessages());     //outcoming messag
 		run = true;
 		initDir();
 
@@ -70,16 +91,16 @@ public class Client extends Thread {
 		}
 		try {
 			logger.add("Connected to server " + getSocket());
-			netOut = new ObjectOutputStream(getSocket().getOutputStream());
+			netOut = new ObjectOutputStream(getSocket().getOutputStream());  
 			netOut.flush();
 			setNetIn(new ObjectInputStream(getSocket().getInputStream()));
 			new ClientMessageSender(getOut(), netOut);
 			new SocketListener(this);
 			
-			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress()));
-			initNameGUI();
+			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress())); // sends ip
+			initNameGUI();  
 			
-			watcher = new DirWatcher(getDirectory(), this);
+			watcher = new DirWatcher(getDirectory(), this); 
 			
 			while(run) { 
 				Thread.sleep(1000);
@@ -95,32 +116,53 @@ public class Client extends Thread {
 		}
 	}
 
+	/**
+	 * @return a direcotry watcher specified for this client
+	 */
 	public DirWatcher getWatcher(){
 		return watcher;
 
 	}
 
+	/**
+	 * establish connection for downloading a file
+	 * @param ip - ip to download from
+	 * @param fileName - filename
+	 * @param port - port for download connection
+	 * 
+	 */
 	public void downloadConn(String ip, String fileName, int port){
 		busyPorts.add(port);
 		new FileReceiver(fileName, ip, port, directory, this);
 	}
-	public void uploadConn(String fileName, int port){
+	/*public void uploadConn(String fileName, int port){
 		new FileSender(fileName, port, this);
-	}
+	}*/
 	
+	/**
+	 * establishes connection for uploading a file, 
+	 * sends message to the client who wants to download a file
+	 * to initiate connection
+	 * 
+	 * @param fileName - name of file to be downloaded
+	 * @param downloadInfo - whom to send, filename, ip
+	 */
 	public void uploadConn(String fileName, String downloadInfo){
 		int port = getFreePort();
 		new FileSender(fileName, port, this);
 		
 		out.addMessage(new OpenDownloadConnMsg( 
 				downloadInfo.substring(downloadInfo.indexOf("<") + 1) + "<"+port, 
-				downloadInfo.substring(0, downloadInfo.indexOf("<")) ));
+				downloadInfo.substring(START_INDEX, downloadInfo.indexOf("<")) ));
 		
 		System.out.println("open download msg sent " + downloadInfo + "<"+port);
 		
 	}
 	
 	
+	/**
+	 * @return - free port for establishing connection
+	 */
 	public int getFreePort(){
 		synchronized(busyPorts){
 			int port = 8000;
@@ -137,6 +179,9 @@ public class Client extends Thread {
 		}	
 	}
 	
+	/**
+	 * @param port - port which is freed
+	 */
 	public void removePort(int port){
 		synchronized(busyPorts){
 			busyPorts.remove(port);
@@ -145,56 +190,91 @@ public class Client extends Thread {
 	
 
 
+	/**
+	 * @return - socket of client-server connection
+	 */
 	public Socket getSocket() {
 		return socket;
 	}
 
 
 
+	/**
+	 * @param socket - set socket for for client-server connection
+	 */
 	public void setSocket(Socket socket) {
 		this.socket = socket;
 	}
 
 
 
+	/**
+	 * @return inputstream of client's objects
+	 */
 	public ObjectInputStream getNetIn() {
 		return netIn;
 	}
 
 
 
+	/**
+	 * sets inputstream of client objects
+	 * @param netIn inputstream
+	 */
 	public void setNetIn(ObjectInputStream netIn) {
 		this.netIn = netIn;
 	}
 
 
 
+	/**
+	 * @return - incoming messages queue
+	 */
 	public LinkedList<String> getInQueue() {
 		return inQueue;
 	}
 
 
 
+	/**
+	 * sets incoming messages queue
+	 * @param inQueue - incoming messages queue
+	 */
 	public void setInQueue(LinkedList<String> inQueue) {
 		this.inQueue = inQueue;
 	}
 
 
 
+	/**
+	 * @return - outcoming message
+	 */
 	public synchronized OutboundMessages getOut() {
 		return out;
 	}
 	
+	/**
+	 * set client's files on server
+	 * @param files - files to be set in server
+	 */
 	public void setFilesOnServer(ConcurrentHashMap<String, FileInfo> files){
 		filesOnServer = new ConcurrentHashMap<String, FileInfo>(files);
 	}
 
 
 
+	/**
+	 * sets the outcoming message list
+	 * @param out - outcoming messages
+	 */
 	public void setOut(OutboundMessages out) {
 		this.out = out;
 	}
 
+	/**
+	 * changes direcotry of the dirwatcher
+	 * @param dir - new directory to be set 
+	 */
 	public void resetDir(String dir){
 		if(validateDirectory(dir)){
 			
@@ -204,6 +284,11 @@ public class Client extends Thread {
 		}
 	}
 	
+	/**
+	 * checks if specified path is a directory
+	 * @param directory - direcoty to be checked
+	 * @return {@link Boolean}
+	 */
 	private boolean validateDirectory(String directory){	
 			File check = new File(directory);
 			if (check.isDirectory()){
@@ -222,22 +307,25 @@ public class Client extends Thread {
 	
 	
 	
+	/**
+	 * initializes the directory to be shared before connection
+	 */
 	public void initDir(){
 		setDirectory("");
 		setInitDir(false);
-		state = 1;
+		state = WRONG_DIR_STATE;
 		logger.add("Enter directory to share");
 		
 		while(true){
 			
-			if(state == 0){
+			if(state == OK_DIR_STATE){
 				
 				if(validateDirectory(getDirectory())){
 					setDirectory(getDirectory());
 					setInitDir(true);
-					state = 0;
+					state = OK_DIR_STATE;
 					break;
-				}else state = 1;
+				}else state = WRONG_DIR_STATE;
 			}else{
 				try {
 					Thread.currentThread();
@@ -249,12 +337,16 @@ public class Client extends Thread {
 		
 	}
 	
+	/**
+	 * check  if the client name is already in use on the server 
+	 * and sets the client name
+	 */
 	public void initNameGUI(){
 		state = 0;
-		logger.add("Enter name");
+		logger.add("Enter name (use alphanumeric symbols only!)");
 		boolean flag = true;
 		while(true){
-			if(state == 0){
+			if(state == NAMEINIT_START_STATE){
 				try {
 					setName("");
 					Thread.currentThread();
@@ -262,14 +354,14 @@ public class Client extends Thread {
 				} catch (InterruptedException e) {}
 				
 			}
-			else if(state == 1){
+			else if(state == NAME_ACK_WAIT_STATE){
 				flag = true;
 				try {
 					Thread.currentThread();
 					Thread.sleep(100);
 				} catch (InterruptedException e) {}
 			}
-			else if(state == 2){ //name in use
+			else if(state == NAME_USED_STATE){ //name in use
 				setName("");
 				if(flag) logger.add("Name already in use, enter new one");
 				flag = false;
@@ -279,7 +371,7 @@ public class Client extends Thread {
 				} catch (InterruptedException e) {}
 				
 			}
-			else if(state == 3){ //server answer sets state to 2 or 3, if 3 name is ok
+			else if(state == OK_NAME_STATE){ //server answer sets state to 2 or 3, if 3 name is ok
 				System.out.println("Ok, your name is: " + getName());
 				logger.add("Ok, your name is: " + getName());
 				getOut().addMessage(new FilesQuery());
@@ -291,51 +383,103 @@ public class Client extends Thread {
 	
 	
 	
+	/**
+	 * sets state variable on initializing name
+	 * @param s -  state
+	 */
 	public synchronized void setState(int s){
 		state = s;
 	}
+	/**
+	 * @return state
+	 */
 	public int getClientState(){
 		return state;
 	}
+	/**
+	 * @return map of file list on server
+	 */
 	public ConcurrentHashMap<String, FileInfo> getFilesOnServer() {
 		return filesOnServer;
 	}
+	/**
+	 * sets clients on server
+	 * @param u - client list
+	 */
 	public void setUsersOnServer(Collection<String> u) {
 		CopyOnWriteArrayList<String> users = new CopyOnWriteArrayList<String>(u);
 		usersOnServer = users;
 		
 	}
+	/**
+	 * @return - users on server
+	 */
 	public CopyOnWriteArrayList<String> getUsersOnServer() {
 		return usersOnServer;
 	}
+	/**
+	 * if shared directory is initialized
+	 * @return {@link Boolean}
+	 */
 	public boolean isInitDir() {
 		return initDir;
 	}
+	/**
+	 * sets if the shared directory is initialized
+	 * @param initDir - {@link Boolean}
+	 */
 	public void setInitDir(boolean initDir) {
 		this.initDir = initDir;
 	}
+	/**
+	 * @return - shared directory
+	 */
 	public String getDirectory() {
 		return directory;
 	}
+	/**
+	 * sets the directory to be shared
+	 * @param directory 
+	 */
 	public void setDirectory(String directory) {
 		this.directory = directory;
 	}
+	/**
+	 * @return client logger
+	 */
 	public Logger getLogger() {
 		return logger;
 	}
+	/**
+	 * sets client logger
+	 * @param logger
+	 */
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
+	/**
+	 * stops run() method
+	 */
 	public void stopRunning(){
 		run = false;
 	}
 	
+	/**
+	 * @return - label of the GUI window
+	 */
 	public String getGUILabel(){
 		return serverAddr +":" + Integer.toString(port);
 	}
+	/**
+	 * @return ports which are alredy in use
+	 */
 	public Set<Integer> getBusyPorts() {
 		return busyPorts;
 	}
+	/**
+	 * sets ports, which are already in use
+	 * @param busyPorts 
+	 */
 	public void setBusyPorts(Set<Integer> busyPorts) {
 		this.busyPorts = busyPorts;
 	}
