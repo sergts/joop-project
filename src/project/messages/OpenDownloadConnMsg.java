@@ -17,6 +17,7 @@ public class OpenDownloadConnMsg extends Message{
 	private static int IP_INDEX = 0;
 	private static int FILE_INDEX = 1;
 	private static int PORT_INDEX = 2;
+	private static String DELIMITER = "<";
 
 
 
@@ -45,9 +46,9 @@ public class OpenDownloadConnMsg extends Message{
 		
 		System.out.println("download message received");
 		System.out.println(this.getContents());
-		String ip = this.getContents().split("<")[IP_INDEX];
-		String file = this.getContents().split("<")[FILE_INDEX];
-		int port = Integer.parseInt(this.getContents().split("<")[PORT_INDEX]);
+		String ip = this.getContents().split(DELIMITER)[IP_INDEX];
+		String file = this.getContents().split(DELIMITER)[FILE_INDEX];
+		int port = Integer.parseInt(this.getContents().split(DELIMITER)[PORT_INDEX]);
 		cli.downloadConn(file, ip,  port);
 		
 	}
@@ -56,7 +57,7 @@ public class OpenDownloadConnMsg extends Message{
 	public void action(ClientSession sess) {
 		
 		
-		ClientSession session = sess.activeSessions.get(this.getTo());
+		ClientSession session = sess.getActiveSessions().get(this.getTo());
 		if(session!=null){
 			session.sendMessage(this);
 		}

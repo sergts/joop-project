@@ -13,7 +13,7 @@ import project.server.ClientSession;
  *
  */
 @SuppressWarnings("serial")
-public class WhoMessage extends Message {
+public class WhoQuery extends Message {
 
 	
 	
@@ -23,7 +23,7 @@ public class WhoMessage extends Message {
 	 * {@link Constructor}
 	 * used for querying the server
 	 */
-	public WhoMessage() {
+	public WhoQuery() {
 		super();
 	}
 	
@@ -35,7 +35,7 @@ public class WhoMessage extends Message {
 	 * @param m - who's on the server
 	 * 
 	 */
-	public WhoMessage(String m) {
+	public WhoQuery(String m) {
 		super(m);
 	}
 
@@ -57,18 +57,8 @@ public class WhoMessage extends Message {
 		while(names.hasNext()){
 				namesOfActiveSessions += (names.next() + " ");
 		}
-		sess.sendMessage(new WhoMessage(namesOfActiveSessions));
-		
-		/*
-		Iterator<ClientSession> activeSessions = sess.getActiveSessions().iterator();
-		String namesOfActiveSessions = "";
-		while(activeSessions.hasNext()){
-			ClientSession session = activeSessions.next();
-			if(session.isAlive()){
-				namesOfActiveSessions += (session.getName()+ " ");
-			}
-			
-		}*/
+		sess.sendMessage(new WhoQuery(namesOfActiveSessions));
+
 		
 		
 	}

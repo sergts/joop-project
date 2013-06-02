@@ -9,7 +9,7 @@ import project.server.ClientSession;
  *
  */
 @SuppressWarnings("serial")
-public class TextMsg extends Message {
+public class TextMessage extends Message {
 
 	
 
@@ -18,7 +18,7 @@ public class TextMsg extends Message {
 	/**
 	 * @param string - contents
 	 */
-	public TextMsg(String string) {
+	public TextMessage(String string) {
 		super(string);
 	}
 

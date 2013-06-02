@@ -10,24 +10,21 @@ import project.server.ClientSession;
  *
  */
 @SuppressWarnings("serial")
-public class InitIp extends Message {
+public class InitializeIpMsg extends Message {
 
 	
 
 
-	public InitIp(String hostAddress) {
+	public InitializeIpMsg(String hostAddress) {
 		super(hostAddress);
 	}
 
 	@Override
-	public void action(Client cli) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void action(Client cli) {}
 
 	@Override
 	public void action(ClientSession sess) {
-		sess.ip = getContents();
+		sess.setIp(getContents());
 		
 	}
 

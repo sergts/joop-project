@@ -1,4 +1,4 @@
-package project.utils;
+package project.client.utils;
 
 public class ByteConverter {
 	

@@ -9,15 +9,16 @@ import java.lang.reflect.Constructor;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import project.client.utils.ByteConverter;
+import project.client.utils.StreamUtil;
 import project.messages.LogMessage;
-import project.utils.ByteConverter;
 
 /**
  * This class implements the logic of the sending side 
  * during the file transfer
  *
  */
-public class FileSender extends Thread{
+public class UploadConn extends Thread{
 	private String fileName;
 	private int port;
 	private Client client;
@@ -28,7 +29,7 @@ public class FileSender extends Thread{
 	 * @param port -  port used for transfer connection
 	 * @param client - client who sends the file
 	 */
-	public FileSender(String file, int port, Client client) {
+	public UploadConn(String file, int port, Client client) {
 		this.fileName = file;
 		this.port = port;
 		this.client = client;

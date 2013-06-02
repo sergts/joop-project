@@ -1,4 +1,4 @@
-package project.client;
+package project.client.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

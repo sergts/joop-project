@@ -33,7 +33,7 @@ public class UpdFilesMsg extends Message {
 
 	@Override
 	public void action(ClientSession sess) {
-		sess.files = getFiles();
+		sess.setFiles(getFiles());
 	}
 	
 	

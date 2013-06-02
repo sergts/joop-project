@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.*;
 import java.util.*;
@@ -32,7 +33,6 @@ public class Client extends Thread {
 	private String serverAddr;
 	private OutboundMessages out;
 	private Socket socket;
-	private LinkedList<String> inQueue;
 	private ObjectInputStream netIn;
 	private ObjectOutputStream netOut;
 	private int state;
@@ -77,7 +77,6 @@ public class Client extends Thread {
 		
 		setBusyPorts(new HashSet<Integer>());    
 		setLogger(new Logger());               
-		setInQueue(new LinkedList<String>());   // incoming messages
 		setOut(new OutboundMessages());     //outcoming messag
 		run = true;
 		initDir();
@@ -97,7 +96,7 @@ public class Client extends Thread {
 			new ClientMessageSender(getOut(), netOut);
 			new SocketListener(this);
 			
-			out.addMessage(new InitIp(InetAddress.getLocalHost().getHostAddress())); // sends ip
+			out.addMessage(new InitializeIpMsg(InetAddress.getLocalHost().getHostAddress())); // sends ip
 			initNameGUI();  
 			
 			watcher = new DirWatcher(getDirectory(), this); 
@@ -133,11 +132,9 @@ public class Client extends Thread {
 	 */
 	public void downloadConn(String ip, String fileName, int port){
 		busyPorts.add(port);
-		new FileReceiver(fileName, ip, port, directory, this);
+		new DownloadConn(fileName, ip, port, directory, this);
 	}
-	/*public void uploadConn(String fileName, int port){
-		new FileSender(fileName, port, this);
-	}*/
+	
 	
 	/**
 	 * establishes connection for uploading a file, 
@@ -149,7 +146,7 @@ public class Client extends Thread {
 	 */
 	public void uploadConn(String fileName, String downloadInfo){
 		int port = getFreePort();
-		new FileSender(fileName, port, this);
+		new UploadConn(fileName, port, this);
 		
 		out.addMessage(new OpenDownloadConnMsg( 
 				downloadInfo.substring(downloadInfo.indexOf("<") + 1) + "<"+port, 
@@ -169,7 +166,7 @@ public class Client extends Thread {
 			int maxPort = 8887;
 			while(port <= maxPort){
 				if(port == maxPort) port = 8000;
-				if(!getBusyPorts().contains(port)){
+				if(!getBusyPorts().contains(port) && available(port)){
 					getBusyPorts().add(port);
 					break;
 				}
@@ -177,6 +174,26 @@ public class Client extends Thread {
 			}
 			return port;
 		}	
+	}
+	
+	/**
+	 * Checks to see if a specific port is available.
+	 */
+	public static boolean available(int port) {
+	    ServerSocket ss = null;
+	    try {
+	        ss = new ServerSocket(port);
+	        ss.setReuseAddress(true);
+	        return true;
+	    } catch (IOException e) {
+	    } finally {
+	        if (ss != null) {
+	            try {
+	                ss.close();
+	            } catch (IOException e) {}
+	        }
+	    }
+	    return false;
 	}
 	
 	/**
@@ -227,22 +244,7 @@ public class Client extends Thread {
 
 
 
-	/**
-	 * @return - incoming messages queue
-	 */
-	public LinkedList<String> getInQueue() {
-		return inQueue;
-	}
-
-
-
-	/**
-	 * sets incoming messages queue
-	 * @param inQueue - incoming messages queue
-	 */
-	public void setInQueue(LinkedList<String> inQueue) {
-		this.inQueue = inQueue;
-	}
+	
 
 
 
@@ -375,7 +377,7 @@ public class Client extends Thread {
 				System.out.println("Ok, your name is: " + getName());
 				logger.add("Ok, your name is: " + getName());
 				getOut().addMessage(new FilesQuery());
-				getOut().addMessage(new WhoMessage());
+				getOut().addMessage(new WhoQuery());
 				break;
 			}
 		}

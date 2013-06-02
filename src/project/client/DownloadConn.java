@@ -9,8 +9,9 @@ import java.lang.reflect.Constructor;
 import java.net.Socket;
 
 
+import project.client.utils.ByteConverter;
+import project.client.utils.StreamUtil;
 import project.messages.LogMessage;
-import project.utils.ByteConverter;
 
 /**
  * Implements the logic of the class responsible for
@@ -18,7 +19,7 @@ import project.utils.ByteConverter;
  * @author Roman
  *
  */
-public class FileReceiver extends Thread {
+public class DownloadConn extends Thread {
 	private String fileName;
 	private String ip;
 	private int port;
@@ -36,7 +37,7 @@ public class FileReceiver extends Thread {
 	 * @param directory - directory to store the file (shared dir)
 	 * @param client - client downloading a file
 	 */
-	public FileReceiver(String fileName, String ip, int port, String directory, Client client) {
+	public DownloadConn(String fileName, String ip, int port, String directory, Client client) {
 		this.fileName = fileName;
 		this.ip = ip; 
 		this.port = port;

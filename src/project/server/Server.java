@@ -11,8 +11,6 @@ import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import project.utils.OutboundMessages;
-
 
 /**
  * This class implement the logic of a server used
@@ -25,18 +23,20 @@ public class Server {
 
 	public static void main(String[] args) throws IOException {
 		ActiveSessions activeSessions = new ActiveSessions();
-		OutboundMessages outQueue = new OutboundMessages();
+		
 
 		ServerSocket serv = new ServerSocket(PORT);
-		System.out.println("Server startis...");
+		System.out.println("Server started");
+		writeMsgIntoLogFile("Server started");
 		
 		try {
 			while (true) { 									
 				Socket sock = serv.accept(); 				
 				try {
-					new ClientSession(sock, outQueue, activeSessions);
+					new ClientSession(sock, activeSessions);
 				} catch (IOException e) {
-					System.out.println("Socketi loomise avarii :(");
+					System.out.println("Socket creation error");
+					writeMsgIntoLogFile("Socket creation error");
 					sock.close();
 				}
 			} 

@@ -4,7 +4,6 @@ package project.server;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 /**
@@ -44,9 +43,6 @@ public class ActiveSessions {
 	}
 	
 	
-	/*public Iterator<Entry<String, ClientSession>> iteratorMap() { 			 
-		return sessionMap.entrySet().iterator();
-	}*/
 	
 	
 	/**

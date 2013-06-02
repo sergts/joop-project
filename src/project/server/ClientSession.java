@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import project.messages.*;
 import project.utils.FileInfo;
-import project.utils.OutboundMessages;
 
 
 
@@ -20,32 +19,29 @@ import project.utils.OutboundMessages;
  */
 public class ClientSession extends Thread {
 	private Socket socket;
-	private OutboundMessages outQueue;
-	public ActiveSessions activeSessions;
-	public ObjectInputStream netIn;
-	public ObjectOutputStream netOut;
-	public ConcurrentHashMap<String, FileInfo> files;
-	public String ip;
+	private ActiveSessions activeSessions;
+	private ObjectInputStream netIn;
+	private ObjectOutputStream netOut;
+	private ConcurrentHashMap<String, FileInfo> files;
+	private String ip;
 	public String name;
 	private boolean run;
 	
 	
 	/**
 	 * @param s - socket used for connection
-	 * @param out - OutboundMessages of the client
 	 * @param as - activesessions on the server
 	 * @throws IOException
 	 */
-	public ClientSession(Socket s, OutboundMessages out, ActiveSessions as) throws IOException {
+	public ClientSession(Socket s, ActiveSessions as) throws IOException {
 		
 		setSocket(s);
-		outQueue = out;
 		activeSessions = as;
 		netOut = new ObjectOutputStream(getSocket().getOutputStream());
 		netOut.flush();
 		netIn = new ObjectInputStream(getSocket().getInputStream());
-		files = new ConcurrentHashMap<String, FileInfo>();
-		files.put("null", new FileInfo(0 ,null, null));
+		setFiles(new ConcurrentHashMap<String, FileInfo>());
+		getFiles().put("null", new FileInfo(0 ,null, null));
 		name = null;
 		run = true;
 		System.out.println( "ClientSession " + this + " stardib..." );
@@ -129,5 +125,21 @@ public class ClientSession extends Thread {
 	public void stopSession() {
 		run = false;
 		
+	}
+
+	public ConcurrentHashMap<String, FileInfo> getFiles() {
+		return files;
+	}
+
+	public void setFiles(ConcurrentHashMap<String, FileInfo> files) {
+		this.files = files;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 }

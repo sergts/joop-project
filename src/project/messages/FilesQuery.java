@@ -10,7 +10,8 @@ import project.utils.FileInfo;
 
 /**
  * This message implements the logic of the message used 
- * to gain information about files of clients on the
+ * to gain information about files of clients on the server
+ * also makes possible to search files by name
  *
  */
 @SuppressWarnings("serial")
@@ -41,15 +42,15 @@ public class FilesQuery extends Message {
 		String filter = getContents();
 		
 		ConcurrentHashMap<String, FileInfo> filesMap = new ConcurrentHashMap<String, FileInfo>();
-		Iterator<ClientSession> clients = sess.activeSessions.iteratorSessions();
+		Iterator<ClientSession> clients = sess.getActiveSessions().iteratorSessions();
 		String key;
 		while (clients.hasNext()) {
 			ClientSession client = clients.next();
 			if(client.isAlive()){
-				for(String f : client.files.keySet()){
+				for(String f : client.getFiles().keySet()){
 					if(f.toLowerCase().indexOf(filter.toLowerCase()) != -1){
 						key = f + " : " + client.getName();
-						filesMap.put(key, client.files.get(f));
+						filesMap.put(key, client.getFiles().get(f));
 					}
 					
 				}

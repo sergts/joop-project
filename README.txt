@@ -23,19 +23,7 @@ Necessary milestones:
 
 	2.2) Now create more complicated system. Downloading process should not inferfere with other 			activities. User should be able to download many files at once and still be able to query server.
 	
-	????????????????
-
-3) Build P2P-like system. One file can be downloaded from multiple users. 
-
--------------------------------------------------------
-
-Important things:
-
--How to synchronize files that are downloaded and uploaded.
--How and when to update file folder.
--How to be sure that files are the same(hash, check sum?)
--How to synchronize multiple peers on one file. E.g. when one file is downloaded from multiple peers, how to decide who provides which part of the file.
--How to deal with users exiting during upload/download process?
+	COMPLETED
 
 
 

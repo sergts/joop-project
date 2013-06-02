@@ -11,7 +11,7 @@ import project.server.ClientSession;
  * set the name of the client
  */
 @SuppressWarnings("serial")
-public class InitName extends Message {
+public class InitializeNameMsg extends Message {
 
    private final  static String USED_NAME_STATE = "2";
    private final  static String OK_NAME_STATE = "3";
@@ -23,7 +23,7 @@ public class InitName extends Message {
 	 * {@link Constructor}
 	 * @param myName -  name to be set
 	 */
-	public InitName(String myName) {
+	public InitializeNameMsg(String myName) {
 		super(myName);
 	}
 
@@ -36,11 +36,11 @@ public class InitName extends Message {
 	public void action(ClientSession sess) {
 		
 		
-		if(sess.activeSessions.checkInSession(getContents(), sess)){
-			sess.sendMessage(new InitName(OK_NAME_STATE));
+		if(sess.getActiveSessions().checkInSession(getContents(), sess)){
+			sess.sendMessage(new InitializeNameMsg(OK_NAME_STATE));
 			sess.name = getContents();
 		}else{
-			sess.sendMessage(new InitName(USED_NAME_STATE));
+			sess.sendMessage(new InitializeNameMsg(USED_NAME_STATE));
 		}
 		
 		

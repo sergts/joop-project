@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 
 import project.messages.*;
-import project.utils.ByteConverter;
+import project.client.utils.ByteConverter;
 
 
 /**
@@ -29,6 +29,10 @@ public class GUI extends JFrame{
 	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton, refreshDataButton, PMButton;
 	private JTextField shareTextField, searchTextField, setNameTextField, PMTextField;
 	private Client client;
+	private final static int NAMEINIT_START_STATE = 0;
+    private final static int NAME_ACK_WAIT_STATE = 1;
+    private final static int NAME_USED_STATE = 2;
+    private final static int OK_NAME_STATE = 3;
 	
 	/**
 	 * Choose server address and port
@@ -252,7 +256,7 @@ public class GUI extends JFrame{
 				String filename = selected.substring(0, selected.indexOf(':') - 1);
 				String sub = (selected.substring(selected.indexOf(':') + 1,selected.length()));
 				String owner = sub.substring(0, sub.indexOf(':')).trim();
-				client.getOut().addMessage(new DownloadMessage(filename, owner));
+				client.getOut().addMessage(new DownloadQuery(filename, owner));
 			}
 		}
 	}
@@ -266,7 +270,7 @@ public class GUI extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			String dir = shareTextField.getText().trim();
 			if(dir.length() > 0){
-				if(!client.isInitDir() || client.getClientState() == 3){
+				if(!client.isInitDir() || client.getClientState() == OK_NAME_STATE){
 					if(!client.isInitDir()){
 						client.setDirectory(dir);
 						client.setState(0);
@@ -314,9 +318,10 @@ public class GUI extends JFrame{
 				if(p.matcher(name).find()){
 					client.getLogger().add("Illegal name, should be alphanumeric");
 				}
-				else if(client.getClientState() == 0 || client.getClientState() == 2){
-					client.getOut().addMessage(new InitName(name));
-					client.setState(1);
+				else if(client.getClientState() == NAMEINIT_START_STATE || 
+						client.getClientState() == NAME_USED_STATE){
+					client.getOut().addMessage(new InitializeNameMsg(name));
+					client.setState(NAME_ACK_WAIT_STATE);
 					client.setName(name);
 				}
 			}
@@ -366,11 +371,11 @@ public class GUI extends JFrame{
 	class RefreshListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
-			if(client.isInitDir() && client.getClientState() != 3){
+			if(client.isInitDir() && client.getClientState() != OK_NAME_STATE){
 				setNameTextField.setVisible(true);
 				setNameButton.setVisible(true);
 			}
-			if(client.getClientState() == 3){
+			if(client.getClientState() == OK_NAME_STATE){
 				setNameTextField.setVisible(false);
 				setNameButton.setVisible(false);
 				searchTextField.setVisible(true);
@@ -379,7 +384,7 @@ public class GUI extends JFrame{
 				downloadFilesButton.setVisible(true);
 				PMButton.setVisible(true);
 				PMTextField.setVisible(true);
-				client.getOut().addMessage(new WhoMessage());
+				client.getOut().addMessage(new WhoQuery());
 			}
 			updateFileList();
 			updateUserList();
@@ -396,7 +401,7 @@ public class GUI extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			
 			client.getOut().addMessage(new FilesQuery());
-			client.getOut().addMessage(new WhoMessage());
+			client.getOut().addMessage(new WhoQuery());
 			updateFileList();
 			updateUserList();
 			updateLogsList();
@@ -409,3 +414,4 @@ public class GUI extends JFrame{
 
 	
 }
+

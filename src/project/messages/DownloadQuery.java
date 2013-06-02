@@ -11,17 +11,17 @@ import project.server.ClientSession;
  *
  */
 @SuppressWarnings("serial")
-public class DownloadMessage extends Message {
+public class DownloadQuery extends Message {
 
 	
-	
+	private static String DELIMITER = "<";
 
 
 	/**
 	 * @param m -  filename of the file to download
 	 * @param to - owner of the file
 	 */
-	public DownloadMessage(String m, String to) {
+	public DownloadQuery(String m, String to) {
 		super(m, to);
        
 	}
@@ -35,13 +35,13 @@ public class DownloadMessage extends Message {
 
 		
 		
-		ClientSession session = sess.activeSessions.get(this.getTo());
+		ClientSession session = sess.getActiveSessions().get(this.getTo());
 		String filename = this.getContents();
 		if(session != null){
-			if(session.files.containsKey(filename)){
+			if(session.getFiles().containsKey(filename)){
 				
-				session.sendMessage(new OpenUploadConnMsg(session.files.get(filename).getPath(), 
-						sess.getName() + "<" + filename + "<" + session.ip ));
+				session.sendMessage(new OpenUploadConnMsg(session.getFiles().get(filename).getPath(), 
+						sess.getName() + DELIMITER + filename + DELIMITER + session.getIp() ));
 				System.out.println("upload message sent");
 			}
 		}
