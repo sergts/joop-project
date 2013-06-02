@@ -20,6 +20,7 @@ public class ClientMessageSender extends Thread {
 	
 	private OutboundMessages outQueue;
 	private ObjectOutputStream netOut;
+	private boolean run;
 	
 	/**
 	 * {@link Constructor}
@@ -29,11 +30,12 @@ public class ClientMessageSender extends Thread {
 	ClientMessageSender(OutboundMessages o, ObjectOutputStream netOut) {
 		outQueue = o;
 		this.netOut = netOut;
+		run = true;
 		start();
 	}
 
 	public void run() {
-		while (true) {  
+		while (run) {  
 			Message msg = outQueue.getMessage(); 
 			try {
 				netOut.reset();
@@ -46,5 +48,9 @@ public class ClientMessageSender extends Thread {
 			
 		}
 		
+	}
+	
+	public void stopThread(){
+		run = false;
 	}
 }

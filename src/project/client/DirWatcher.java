@@ -40,7 +40,6 @@ public class DirWatcher extends Thread {
 	public DirWatcher(String path, Client client) {
 		
 		this.path = path;
-		System.out.println("Sharing " + path);
 		client.getLogger().add("Sharing " + path);
 		directory = new File(path);
 		fileNames =  getFilesFormatted(directory.listFiles());

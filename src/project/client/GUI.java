@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 
 import project.messages.*;
+import project.utils.Logger;
 import project.client.utils.ByteConverter;
 
 
@@ -26,9 +27,11 @@ public class GUI extends JFrame{
 	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerUsersPanel;
 	private DefaultListModel<String> filesModel, usersModel, logsModel;
 	private JList<String> filesList, usersList, logsList;
-	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton, refreshDataButton, PMButton;
-	private JTextField shareTextField, searchTextField, setNameTextField, PMTextField;
+	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, connectButton; 
+	private JButton setNameButton, refreshDataButton, PMButton, disconnectButton;
+	private JTextField shareTextField, searchTextField, setNameTextField, PMTextField, connectTextField;
 	private Client client;
+	private Logger logger;
 	private final static int NAMEINIT_START_STATE = 0;
     private final static int NAME_ACK_WAIT_STATE = 1;
     private final static int NAME_USED_STATE = 2;
@@ -37,8 +40,7 @@ public class GUI extends JFrame{
 	/**
 	 * Choose server address and port
 	 */
-	private static final String servAddress = "localhost";
-	private static final int servPort = 8888;
+	
 	
 	
 	public static void main(String[] args) throws IOException{
@@ -50,14 +52,19 @@ public class GUI extends JFrame{
 
 	private GUI(){
 		
-		client = new Client(servAddress, servPort);
-		
-		
+		//client = new Client(servAddress, servPort);
+		logger = new Logger();
+		logger.add("Enter server address, e.g.  localhost 8888");
 
 		downloadFilesButton = new JButton("Download");
 		downloadFilesButton.addActionListener(new DownloadListener());
 		refreshDataButton = new JButton("Refresh data");
 		refreshDataButton.addActionListener(new RefreshDataListener());
+		disconnectButton = new JButton("Disconnect");
+		disconnectButton.addActionListener(new DisconnectListener());
+		connectButton = new JButton("Connect");
+		connectButton.addActionListener(new ConnectListener());
+		
 		shareFilesButton = new JButton("Share");
 		shareFilesButton.addActionListener(new ShareListener());
 		searchFilesButton = new JButton("Search");
@@ -70,6 +77,7 @@ public class GUI extends JFrame{
 		searchTextField = new JTextField(15);
 		setNameTextField = new JTextField(15);
 		PMTextField = new JTextField(15);
+		connectTextField = new JTextField(15);
 		setupFrame(this);
 
 		(new Thread() { public void run() {  }}).start();
@@ -81,8 +89,10 @@ public class GUI extends JFrame{
 		    @Override
 		    public void run()
 		    {
-		        client.getOut().addMessage(new ExitMsg());
-		        client.stopRunning();
+		    	if(client!=null){
+			        client.getOut().addMessage(new ExitMsg());
+			        client.stopRunning();
+		    	}
 		    }
 		});
 		
@@ -94,7 +104,7 @@ public class GUI extends JFrame{
 	private void setupFrame(JFrame frame){
 
 
-		frame = new JFrame(client.getGUILabel());
+		frame = new JFrame("File sharing app ");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		JPanel upperPanel = new JPanel();
@@ -104,9 +114,7 @@ public class GUI extends JFrame{
 		upperPanel.setPreferredSize(new Dimension(FRAME_WIDTH, (FRAME_HEIGHT * 1/2)));
 		midPanel.setLayout(new GridLayout(1, 2));
 		lowerPanel.setLayout(new GridLayout(1, 0));
-
 		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
-
 		filesModel = new DefaultListModel<String>();
 		filesList = new JList<String>(filesModel);
 		usersModel = new DefaultListModel<String>();
@@ -118,10 +126,10 @@ public class GUI extends JFrame{
 		logsPanel = initPanel(new JLabel("Logs"), logsList, 580, 200, true);
 		lowerFilesPanel = new JPanel();
 		lowerUsersPanel = new JPanel();
-
+		
 		filesPanel.add(downloadFilesButton);
 		filesPanel.add(refreshDataButton);
-		
+		usersPanel.add(disconnectButton);
 		lowerFilesPanel.add(shareTextField);
 		lowerFilesPanel.add(shareFilesButton);
 		lowerFilesPanel.add(searchTextField);
@@ -130,6 +138,9 @@ public class GUI extends JFrame{
 		
 		lowerUsersPanel.add(PMTextField);
 		lowerUsersPanel.add(PMButton);
+		
+		lowerUsersPanel.add(connectTextField);
+		lowerUsersPanel.add(connectButton);
 		
 		lowerUsersPanel.add(setNameTextField);
 		lowerUsersPanel.add(setNameButton);
@@ -156,8 +167,13 @@ public class GUI extends JFrame{
 		PMButton.setVisible(false);
 		PMTextField.setVisible(false);
 		
+		shareTextField.setVisible(false);
+		shareFilesButton.setVisible(false);
+		
 
 		frame.setVisible(true);
+		
+		
 
 	}
 
@@ -183,7 +199,7 @@ public class GUI extends JFrame{
 	 * Updates list of logs. New logs are appended to the bottom.
 	 */
 	private void updateLogsList() {
-		Iterator<String> logs = client.getLogger().iterator();
+		Iterator<String> logs = logger.iterator();
 		String log;
 		int index = 0;
 		while(logs.hasNext()){
@@ -244,7 +260,6 @@ public class GUI extends JFrame{
 
 	/**
 	 * 
-	 * @author Serge
 	 * IF file is selected and DOWNLOAD button is pressed, then query about downloading 
 	 * is sent to the server.
 	 *
@@ -262,7 +277,6 @@ public class GUI extends JFrame{
 	}
 	/**
 	 * 
-	 * @author Serge
 	 * Allows to set and reset a shared folder. 
 	 *
 	 */
@@ -289,10 +303,28 @@ public class GUI extends JFrame{
 			
 		}
 	}
+	
+	
+	class ConnectListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			String addr = connectTextField.getText().trim();
+			
+			if(addr.length() > 0){
+				if(addr.split(" ").length == 2)
+					newClient(addr.split(" ")[0],addr.split(" ")[1]);
+				else logger.add("Wrong server address format, example of correct:  localhost 8888");
+			}
+			
+			searchTextField.requestFocusInWindow();
+			searchTextField.setText("");
+			
+			
+			
+		}
+	}
 
 	/**
 	 * 
-	 * @author Serge
 	 * Send query to show only these files, which have substring of search value.
 	 *
 	 */
@@ -307,7 +339,6 @@ public class GUI extends JFrame{
 	}
 	/**
 	 * Sets name at the start of the program
-	 * @author Serge
 	 *
 	 */
 	class SetNameListener implements ActionListener {
@@ -316,7 +347,7 @@ public class GUI extends JFrame{
 			if(name.length() > 0){
 				Pattern p = Pattern.compile("[^a-zA-Z0-9]");
 				if(p.matcher(name).find()){
-					client.getLogger().add("Illegal name, should be alphanumeric");
+					logger.add("Illegal name, should be alphanumeric");
 				}
 				else if(client.getClientState() == NAMEINIT_START_STATE || 
 						client.getClientState() == NAME_USED_STATE){
@@ -336,22 +367,23 @@ public class GUI extends JFrame{
 	}
 	/**
 	 * If some user if selected, it then sends a private message to him.
-	 * @author Serge
 	 *
 	 */
 	class PMListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String msg = PMTextField.getText().trim();
 			String thisUsr = client.getName() + " (you)";
-			if(usersList.getSelectedValue().equals(thisUsr) && msg.length() > 0){
-				client.getLogger().add("I'm sorry, " +client.getName()+", I'm afraid I can't do that.");
-			}
-			else if(usersList.getSelectedValue() != null && msg.length() > 0){
-				String message = "("+client.getName()+"): "+msg;
-				String to  = usersList.getSelectedValue();
-				client.getOut().addMessage(new PersonalMessage(message, to));
-				client.getLogger().add("Message sent to " + to);
-				
+			if(usersList.getSelectedValue() != null && msg.length() > 0){
+				if(usersList.getSelectedValue().equals(thisUsr)){
+					logger.add("I'm sorry, " +client.getName()+", I'm afraid I can't do that.");
+				}
+				else{
+					String message = "("+client.getName()+"): "+msg;
+					String to  = usersList.getSelectedValue();
+					client.getOut().addMessage(new PersonalMessage(message, to));
+					logger.add("Message sent to " + to);
+					
+				}
 			}
 			
 			PMTextField.requestFocusInWindow();
@@ -365,36 +397,55 @@ public class GUI extends JFrame{
 
 	/**
 	 * Refreshed data in GUI also queries new user list.
-	 * @author Serge
 	 *
 	 */
 	class RefreshListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			
-			if(client.isInitDir() && client.getClientState() != OK_NAME_STATE){
-				setNameTextField.setVisible(true);
-				setNameButton.setVisible(true);
-			}
-			if(client.getClientState() == OK_NAME_STATE){
+			updateLogsList();
+			if(client!=null){
+				connectTextField.setVisible(false);
+				connectButton.setVisible(false);
+				shareFilesButton.setVisible(true);
+				shareTextField.setVisible(true);
+				if(client.isInitDir() && client.getClientState() != OK_NAME_STATE){
+					setNameTextField.setVisible(true);
+					setNameButton.setVisible(true);
+				}
+				if(client.getClientState() == OK_NAME_STATE){
+					setNameTextField.setVisible(false);
+					setNameButton.setVisible(false);
+					searchTextField.setVisible(true);
+					searchFilesButton.setVisible(true);
+					refreshDataButton.setVisible(true);
+					downloadFilesButton.setVisible(true);
+					PMButton.setVisible(true);
+					PMTextField.setVisible(true);
+					client.getOut().addMessage(new WhoQuery());
+				}
+				updateFileList();
+				updateUserList();
+				
+				
+			}else{
 				setNameTextField.setVisible(false);
 				setNameButton.setVisible(false);
-				searchTextField.setVisible(true);
-				searchFilesButton.setVisible(true);
-				refreshDataButton.setVisible(true);
-				downloadFilesButton.setVisible(true);
-				PMButton.setVisible(true);
-				PMTextField.setVisible(true);
-				client.getOut().addMessage(new WhoQuery());
+				searchTextField.setVisible(false);
+				searchFilesButton.setVisible(false);
+				refreshDataButton.setVisible(false);
+				downloadFilesButton.setVisible(false);
+				PMButton.setVisible(false);
+				PMTextField.setVisible(false);
+				shareFilesButton.setVisible(false);
+				shareTextField.setVisible(false);
+				
+				
+				connectTextField.setVisible(true);
+				connectButton.setVisible(true);
 			}
-			updateFileList();
-			updateUserList();
-			updateLogsList();
-			
 		}
 	}
 	/**
 	 * Queries new data from the server and refreshes it in GUI
-	 * @author Serge
 	 *
 	 */
 	class RefreshDataListener implements ActionListener {
@@ -406,6 +457,31 @@ public class GUI extends JFrame{
 			updateUserList();
 			updateLogsList();
 			
+		}
+	}
+	
+	
+	/**
+	 * Resets current connection with server
+	 *
+	 */
+	class DisconnectListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			
+			if(client!=null) client.stopRunning();
+			client = null;
+			logger.add("Enter server address, e.g.  localhost 8888");
+			
+		}
+	}
+	
+	public void newClient(String ip, String portStr){
+		try{
+			int port = Integer.parseInt(portStr);
+			this.client = new Client(ip, port, logger);
+
+		}catch(NumberFormatException e){
+			logger.add("Port value not parsable as integer");
 		}
 	}
 	

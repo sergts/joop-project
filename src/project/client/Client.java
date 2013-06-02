@@ -28,6 +28,8 @@ import project.utils.OutboundMessages;
 public class Client extends Thread {
 
 	private DirWatcher watcher;
+	private ClientMessageSender sender;
+	private SocketListener listener;
 	private String directory;
 	private int port;
 	private String serverAddr;
@@ -55,9 +57,11 @@ public class Client extends Thread {
 	 * @param server - server address
 	 * @param port - port used for connection
 	 */
-	public Client(String server, int port){
+	public Client(String server, int port, Logger logger){
 		this.port = port;
 		this.serverAddr = server;
+		this.logger = logger;
+		logger.add("New client process started");
 		start();
 	}
 	/**
@@ -75,13 +79,13 @@ public class Client extends Thread {
 	
 	public void run(){
 		
-		setBusyPorts(new HashSet<Integer>());    
-		setLogger(new Logger());               
+		setBusyPorts(new HashSet<Integer>());                  
 		setOut(new OutboundMessages());     //outcoming messag
 		run = true;
 		initDir();
 
 		try {
+			logger.add("Trying to connect to " + serverAddr + ":" + port);
 			InetAddress servAddr = InetAddress.getByName(serverAddr);
 			setSocket(new Socket(servAddr, port)); 
 		} catch (IOException e) {
@@ -93,13 +97,14 @@ public class Client extends Thread {
 			netOut = new ObjectOutputStream(getSocket().getOutputStream());  
 			netOut.flush();
 			setNetIn(new ObjectInputStream(getSocket().getInputStream()));
-			new ClientMessageSender(getOut(), netOut);
-			new SocketListener(this);
+			sender = new ClientMessageSender(getOut(), netOut);
+			listener = new SocketListener(this);
 			
 			out.addMessage(new InitializeIpMsg(InetAddress.getLocalHost().getHostAddress())); // sends ip
 			initNameGUI();  
 			
 			watcher = new DirWatcher(getDirectory(), this); 
+			logger.add("Files will be downloaded into " + getDirectory() + "\\Downloads");
 			
 			while(run) { 
 				Thread.sleep(1000);
@@ -108,7 +113,7 @@ public class Client extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			logger.add("closing from client");
+			logger.add("Closing client process");
 			try {
 				socket.close();
 			} catch (IOException e) {}
@@ -152,7 +157,6 @@ public class Client extends Thread {
 				downloadInfo.substring(downloadInfo.indexOf("<") + 1) + "<"+port, 
 				downloadInfo.substring(START_INDEX, downloadInfo.indexOf("<")) ));
 		
-		System.out.println("open download msg sent " + downloadInfo + "<"+port);
 		
 	}
 	
@@ -282,6 +286,7 @@ public class Client extends Thread {
 			
 			watcher.stopThread();
 			watcher = new DirWatcher(dir, this);
+			logger.add("Files will be downloaded into " + dir + "\\Downloads");
 		
 		}
 	}
@@ -302,7 +307,6 @@ public class Client extends Thread {
 		
 		
 		logger.add("Wrong directory");
-		System.out.println("Wrong directory");
 		return false;
 		
 	}
@@ -374,7 +378,6 @@ public class Client extends Thread {
 				
 			}
 			else if(state == OK_NAME_STATE){ //server answer sets state to 2 or 3, if 3 name is ok
-				System.out.println("Ok, your name is: " + getName());
 				logger.add("Ok, your name is: " + getName());
 				getOut().addMessage(new FilesQuery());
 				getOut().addMessage(new WhoQuery());
@@ -460,9 +463,12 @@ public class Client extends Thread {
 		this.logger = logger;
 	}
 	/**
-	 * stops run() method
+	 * stops run() method and all other service threads
 	 */
 	public void stopRunning(){
+		if(watcher!=null)watcher.stopThread();
+		if(listener!=null)listener.stopThread();
+		if(sender!=null)sender.stopThread();
 		run = false;
 	}
 	

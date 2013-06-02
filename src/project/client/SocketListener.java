@@ -14,8 +14,8 @@ import project.messages.Message;
 class SocketListener extends Thread {
 	private ObjectInputStream netIn;
 	private Socket socket;
-	
 	private Client cli;
+	private boolean run;
 	
 	/**
 	 * @param cli - client using this SocketListener
@@ -24,28 +24,31 @@ class SocketListener extends Thread {
 		this.cli = cli;
 		this.netIn = cli.getNetIn();
 		this.socket = cli.getSocket();
+		run = true;
 		start();
 	}
 
 	public void run() {
 		try {
-			while (true) { 		
+			while (run) { 		
 				Message msg = (Message) netIn.readObject();
 				msg.action(cli);
 			}
 
 		} catch (Exception e) {
-			cli.getLogger().add("Problem in socket listener");
+			if(run) cli.getLogger().add("Problem in socket listener");
 		} finally {
 			try {
 				if (!socket.isClosed()) {
 					socket.close();
-					cli.getLogger().add("closing...");
-					System.out.println("closing...");
 					return;
 				}
 			} catch (IOException ee) {}
 		} 
+	}
+	
+	public void stopThread(){
+		run = false;
 	}
 	
 	
