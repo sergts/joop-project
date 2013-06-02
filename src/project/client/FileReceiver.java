@@ -16,6 +16,8 @@ public class FileReceiver extends Thread {
 	private int port;
 	private String directory;
 	private Client client;
+	private static final int START_INDEX = 0;
+
 	
 	
 	public FileReceiver(String fileName, String ip, int port, String directory, Client client) {
@@ -31,15 +33,34 @@ public class FileReceiver extends Thread {
         	System.out.println(ip + " " + port);
             Socket clientSocket = new Socket(ip, port);
             
-            File tmpDir = new File(directory+"//tmp");
+            File outputFile;
+			File tmpDir = new File(directory+"//Downloads");
 			if (!tmpDir.exists()) {
 				tmpDir.mkdir();
 			}
-			
 			tmpDir.mkdir();
 			
-			File outputFile = new File(directory+"//tmp", fileName);
-			//File outputFile = new File(directory, fileName);
+			File checkOutputFile = new File(directory+"//Downloads", fileName);
+			if(!checkOutputFile.exists()){
+			outputFile = new File(directory+"//Downloads", fileName);
+			}
+			else{
+				int indexOfExtension = fileName.lastIndexOf('.');
+				String plainName = fileName.substring(START_INDEX, indexOfExtension);
+				String extension = fileName.substring(indexOfExtension );
+				
+				int i = 1;
+				while(true){
+					checkOutputFile = new File(directory+"//Downloads", plainName +"("+i+")"+extension);
+					if(!checkOutputFile.exists()){
+						outputFile = new File(directory+"//Downloads", plainName +"("+i+")"+extension);
+						break;
+					}
+					else{
+						i++;
+					}
+				}
+			}
             System.out.println("Client: connected to server.");
             client.getLogger().add("Connected to uploader: " + ip + ":" + port);
             
@@ -54,11 +75,12 @@ public class FileReceiver extends Thread {
 				
 				
 				
-				File newOutputFile = new File(directory, fileName);
-				copyFile(outputFile, newOutputFile);
+				/*File newOutputFile = new File(directory, fileName);
+				copyFile(outputFile, newOutputFile);*/
 				
 				System.out.println("Client: received " + outputFile + ", " + bytes + " bytes read.");
 	            client.getLogger().add("Received " + outputFile + ", " + bytes + " bytes read.");
+	            
             }catch(Exception e){
             	System.out.println("Error during file " + fileName + " receiving.");
 	            client.getLogger().add("Error during file " + fileName + " receiving.");
@@ -70,7 +92,7 @@ public class FileReceiver extends Thread {
 				out.close();
 				
 				clientSocket.close();
-				outputFile.delete();
+				//outputFile.delete();
 				
 			}
 		} catch (Exception e) {
@@ -104,3 +126,4 @@ public class FileReceiver extends Thread {
         }
     }
 }
+

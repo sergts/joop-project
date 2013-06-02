@@ -13,8 +13,7 @@ public class TextMsg extends Message {
 
 	@Override
 	public void action(Client cli) {
-		cli.getInQueue().add(getContents());
-		
+		cli.getLogger().add(getContents());
 	}
 
 	@Override

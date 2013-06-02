@@ -13,6 +13,7 @@ import project.utils.FileInfo;
 
 
 
+
 public class DirWatcher extends Thread {
 	private String path;
 	private File filesArray[];
@@ -23,9 +24,11 @@ public class DirWatcher extends Thread {
 	private Client client;
 	private boolean run = true;
 
+
 	
 
 	public DirWatcher(String path, Client client) {
+		
 		this.path = path;
 		System.out.println("Sharing " + path);
 		client.getLogger().add("Sharing " + path);
@@ -34,6 +37,7 @@ public class DirWatcher extends Thread {
 		client.getOut().addMessage(new UpdFilesMsg(fileNames));
 		lastmod = directory.lastModified();
 		this.client = client;
+		
 	
 		start();
 	}
@@ -45,20 +49,17 @@ public class DirWatcher extends Thread {
 	public void run() {
 		long modified;
 		while (run) {
-			try{
-				
 			modified = directory.lastModified();
-			if(modified > lastmod){
+			if(modified > lastmod && run){
 				fileNames =  getFilesFormatted(directory.listFiles());
 				lastmod = modified;
 				client.getOut().addMessage(new UpdFilesMsg(fileNames));
 				
 			}
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
+		try{
+			Thread.sleep(2000);
+		}catch(Exception e){}
 	}
 	
 	public ConcurrentHashMap<String, FileInfo> getFiles(){
@@ -70,6 +71,7 @@ public class DirWatcher extends Thread {
 	}
 	
 	
+	
 
 	public ConcurrentHashMap<String, FileInfo> getFilesFormatted(File[] files) {
 
@@ -79,21 +81,6 @@ public class DirWatcher extends Thread {
 			if(file.isFile() && (!file.getName().substring(file.getName().length() - 4).equals(".tmp"))){
 				long size = file.length();
 				String path = file.getAbsolutePath();
-				
-				/*
-				String checkSum;
-				try {
-					checkSum = getFileCheckSum(file);
-					FileInfo fileInfo = new FileInfo(size, checkSum, path);
-					filesInDirectoryMap.put(file.getName(), fileInfo);
-				} catch (NoSuchAlgorithmException e) {
-	
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-	
-					e.printStackTrace();
-				}*/
-				
 				FileInfo fileInfo = new FileInfo(size, path);
 				filesInDirectoryMap.put(file.getName(), fileInfo);
 			}
@@ -137,6 +124,8 @@ public class DirWatcher extends Thread {
 		}
 		return formatter.toString();
 	}
+
+	
 
 
 }

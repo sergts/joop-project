@@ -20,11 +20,11 @@ import project.messages.*;
 public class GUI extends JFrame{
 
 	private static final int FRAME_WIDTH = 700, FRAME_HEIGHT = 650;
-	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerPeersPanel;
+	private JPanel filesPanel, usersPanel, logsPanel, lowerFilesPanel, lowerUsersPanel;
 	private DefaultListModel<String> filesModel, usersModel, logsModel;
 	private JList<String> filesList, usersList, logsList;
-	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton, refreshDataButton;
-	private JTextField shareTextField, searchTextField, setNameTextField;
+	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, setNameButton, refreshDataButton, PMButton;
+	private JTextField shareTextField, searchTextField, setNameTextField, PMTextField;
 	private Client client;
 	
 	public static void main(String[] args) throws IOException{
@@ -49,9 +49,13 @@ public class GUI extends JFrame{
 		searchFilesButton.addActionListener(new SearchListener());
 		setNameButton = new JButton("Set Name");
 		setNameButton.addActionListener(new SetNameListener());
+		PMButton = new JButton("Send PM");
+		PMButton.addActionListener(new PMListener());
+		
 		shareTextField = new JTextField(15);
 		searchTextField = new JTextField(15);
 		setNameTextField = new JTextField(15);
+		PMTextField = new JTextField(15);
 		setupFrame(this);
 
 		(new Thread() { public void run() {  }}).start();
@@ -99,7 +103,7 @@ public class GUI extends JFrame{
 		usersPanel = initPanel(new JLabel("Users"), usersList, 170, 200, false);
 		logsPanel = initPanel(new JLabel("Logs"), logsList, 580, 200, true);
 		lowerFilesPanel = new JPanel();
-		lowerPeersPanel = new JPanel();
+		lowerUsersPanel = new JPanel();
 
 		filesPanel.add(downloadFilesButton);
 		filesPanel.add(refreshDataButton);
@@ -110,14 +114,18 @@ public class GUI extends JFrame{
 		lowerFilesPanel.add(searchFilesButton);
 		
 		
-
-		lowerPeersPanel.add(setNameTextField);
-		lowerPeersPanel.add(setNameButton);
+		lowerUsersPanel.add(PMTextField);
+		lowerUsersPanel.add(PMButton);
+		
+		lowerUsersPanel.add(setNameTextField);
+		lowerUsersPanel.add(setNameButton);
+		
+		
 
 		upperPanel.add(filesPanel);
 		upperPanel.add(usersPanel);
 		midPanel.add(lowerFilesPanel);
-		midPanel.add(lowerPeersPanel);
+		midPanel.add(lowerUsersPanel);
 		lowerPanel.add(logsPanel);
 
 
@@ -131,6 +139,8 @@ public class GUI extends JFrame{
 		setNameButton.setVisible(false);
 		searchTextField.setVisible(false);
 		searchFilesButton.setVisible(false);
+		PMButton.setVisible(false);
+		PMTextField.setVisible(false);
 		
 
 		frame.setVisible(true);
@@ -192,11 +202,23 @@ public class GUI extends JFrame{
 
 
 	private void updateUserList(){
+		
+		String selected = "null";
+		if(usersList.getSelectedValue() != null){
+			selected = usersList.getSelectedValue();
+		}
+		int ind = 0;
+		
+		
 		usersModel.removeAllElements();
 		if(client.getUsersOnServer() != null){
+			
 			for (String username : client.getUsersOnServer()) {
-				if(username.equals(client.getName())) username+="(you)";
+				if(username.equals(client.getName())) username+=" (you)";
 				usersModel.addElement(username);
+				if(username.equals(selected))
+					usersList.setSelectedIndex(ind);
+				ind++;
 			}
 		}
 	}
@@ -223,17 +245,18 @@ public class GUI extends JFrame{
 			
 			
 			String dir = shareTextField.getText().trim();
-			
-			if(!client.isInitDir()){
-				client.setDirectory(dir);
-				client.setState(0);
-			}else{
-				if (!dir.equals("")) {
-					client.resetDir(dir);
+			if(!client.isInitDir() || client.getClientState() == 3){
+				if(!client.isInitDir()){
+					client.setDirectory(dir);
+					client.setState(0);
+				}else{
+					if (!dir.equals("")) {
+						client.resetDir(dir);
+					}
+					shareTextField.requestFocusInWindow();
+					
+					updateFileList();
 				}
-				shareTextField.requestFocusInWindow();
-				
-				updateFileList();
 			}
 			
 			
@@ -274,6 +297,27 @@ public class GUI extends JFrame{
 			
 		}
 	}
+	
+	class PMListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			String msg = PMTextField.getText().trim();
+			String thisUsr = client.getName() + " (you)";
+			if(usersList.getSelectedValue() != null && msg.length() > 0 && !usersList.getSelectedValue().equals(thisUsr)){
+				String message = "("+client.getName()+"): "+msg;
+				String to  = usersList.getSelectedValue();
+				client.getOut().addMessage(new PersonalMessage(message, to));
+				client.getLogger().add("Message sent to " + to);
+				
+			}
+			
+			PMTextField.requestFocusInWindow();
+			PMTextField.setText("");
+			
+			
+			
+			
+		}
+	}
 
 
 	class RefreshListener implements ActionListener {
@@ -290,6 +334,8 @@ public class GUI extends JFrame{
 				searchFilesButton.setVisible(true);
 				refreshDataButton.setVisible(true);
 				downloadFilesButton.setVisible(true);
+				PMButton.setVisible(true);
+				PMTextField.setVisible(true);
 				client.getOut().addMessage(new WhoMessage());
 			}
 			updateFileList();

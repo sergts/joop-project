@@ -82,7 +82,7 @@ public class Client extends Thread {
 			watcher = new DirWatcher(getDirectory(), this);
 			
 			while(run) { 
-				
+				/*
 				if (!getInQueue().isEmpty()) {
 					synchronized (getInQueue()) {
 						Iterator<String> incoming = getInQueue().iterator();
@@ -93,7 +93,7 @@ public class Client extends Thread {
 							incoming.remove();
 						}
 					}
-				}
+				}*/
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -141,6 +141,7 @@ public class Client extends Thread {
 				getBusyPorts().add(port);
 				break;
 			}
+			port++;
 		}
 		return port;
 		
