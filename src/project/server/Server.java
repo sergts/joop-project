@@ -1,15 +1,10 @@
 package project.server;
 
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import project.utils.*;
 
 
 /**
@@ -19,11 +14,13 @@ import java.util.Calendar;
  */
 public class Server {
 	private static final int PORT = 8888;
-	private static File logFile = new File("log.txt");
+	private static final String LOGFILE = "server_log.txt";
+	private static Logger logger;
 
 	public static void main(String[] args) throws IOException {
 		ActiveSessions activeSessions = new ActiveSessions();
 		
+		logger = new Logger(new LoggerWriteToFile(logger, LOGFILE));
 
 		ServerSocket serv = new ServerSocket(PORT);
 		System.out.println("Server started");
@@ -52,31 +49,8 @@ public class Server {
 	 * @param contents - message contents
 	 */
 	public static synchronized void writeMsgIntoLogFile(String contents){
-		   
-			try {
-				FileWriter writer = new FileWriter(logFile,true);
-				BufferedWriter bw = new BufferedWriter(writer);
-				PrintWriter pw = new PrintWriter(bw);
-				pw.println(getTimeStamp()+contents);
-				pw.close();
-				bw.close();
-				writer.close();
-			} catch (IOException e) {
-				
-				System.out.println("logifaili kirjutamise viga!");
-				//e.printStackTrace();
-			}
-		
-		   
+			logger.add(contents);
 	   }
 	   
-	   /**
-	 * @return - timestamp string
-	 */
-	public static synchronized String getTimeStamp(){
-			Calendar cal = Calendar.getInstance();
-	    	cal.getTime();
-	    	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
-			return ("["+sdf.format(cal.getTime())+"] ");
-		}
+	
 }

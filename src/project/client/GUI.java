@@ -11,6 +11,8 @@ import javax.swing.*;
 
 import project.messages.*;
 import project.utils.Logger;
+import project.utils.LoggerAddAndWrite;
+import project.utils.LoggerAddToList;
 import project.client.utils.ByteConverter;
 
 
@@ -30,16 +32,17 @@ public class GUI extends JFrame{
 	private JButton downloadFilesButton, shareFilesButton, searchFilesButton, connectButton; 
 	private JButton setNameButton, refreshDataButton, PMButton, disconnectButton;
 	private JTextField shareTextField, searchTextField, setNameTextField, PMTextField, connectTextField;
+	private JCheckBox logButton;
 	private Client client;
 	private Logger logger;
 	private final static int NAMEINIT_START_STATE = 0;
     private final static int NAME_ACK_WAIT_STATE = 1;
     private final static int NAME_USED_STATE = 2;
     private final static int OK_NAME_STATE = 3;
+    
+    private final static String LOGFILE = "client_log.txt";
 	
-	/**
-	 * Choose server address and port
-	 */
+	
 	
 	
 	
@@ -64,6 +67,10 @@ public class GUI extends JFrame{
 		disconnectButton.addActionListener(new DisconnectListener());
 		connectButton = new JButton("Connect");
 		connectButton.addActionListener(new ConnectListener());
+		
+		logButton = new JCheckBox("Write logs to file");
+	    logButton.setSelected(false);
+	    logButton.addActionListener(new LogModeListener());
 		
 		shareFilesButton = new JButton("Share");
 		shareFilesButton.addActionListener(new ShareListener());
@@ -130,6 +137,8 @@ public class GUI extends JFrame{
 		filesPanel.add(downloadFilesButton);
 		filesPanel.add(refreshDataButton);
 		usersPanel.add(disconnectButton);
+		usersPanel.add(logButton);
+		
 		lowerFilesPanel.add(shareTextField);
 		lowerFilesPanel.add(shareFilesButton);
 		lowerFilesPanel.add(searchTextField);
@@ -194,6 +203,9 @@ public class GUI extends JFrame{
 		panel.add(scrollPane);
 		return panel;
 	}
+	
+	
+
 	
 	/**
 	 * Updates list of logs. New logs are appended to the bottom.
@@ -394,6 +406,9 @@ public class GUI extends JFrame{
 			
 		}
 	}
+	
+	
+	
 
 	/**
 	 * Refreshed data in GUI also queries new user list.
@@ -468,9 +483,28 @@ public class GUI extends JFrame{
 	class DisconnectListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			
-			if(client!=null) client.stopRunning();
+			if(client!=null){
+				client.getOut().addMessage(new ExitMsg());
+				client.stopRunning();
+			}
 			client = null;
 			logger.add("Enter server address, e.g.  localhost 8888");
+			
+		}
+	}
+	
+	class LogModeListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(logButton.isSelected()){
+	    		logger.setBehaviour(new LoggerAddAndWrite(logger, LOGFILE));
+	    		logger.add("Now saving logs to file " + LOGFILE);
+	    	}
+	    	else{
+	    		logger.setBehaviour(new LoggerAddToList(logger));
+	    		logger.add("Not saving logs to file anymore");
+	    		
+	    	}
 			
 		}
 	}
