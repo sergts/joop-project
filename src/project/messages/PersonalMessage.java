@@ -34,11 +34,13 @@ public class PersonalMessage extends Message{
 	@Override
 	public void action(ClientSession sess) {
 		
-		if(sess.getActiveSessions().contains(this.getTo())){
-			ClientSession session = sess.getActiveSessions().get(this.getTo());
+		
+		ClientSession session = sess.getActiveSessions().get(this.getTo());
+		if(session!=null){
 			session.sendMessage(new TextMessage(this.getContents()));
 			Server.writeMsgIntoLogFile("PM message sent from " + sess + " to " + session);
 		}
+		
 		
 		
 		

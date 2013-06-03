@@ -43,7 +43,6 @@ public class Client extends Thread {
 	private Logger logger;
 	private boolean run;
 	private Set<Integer> busyPorts;  
-	private final static int START_INDEX = 0; 
 	private final static int OK_DIR_STATE = 0;
 	private final static int WRONG_DIR_STATE = 1;
 	private final static int NAMEINIT_START_STATE = 0;

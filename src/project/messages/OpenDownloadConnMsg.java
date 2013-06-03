@@ -62,10 +62,10 @@ public class OpenDownloadConnMsg extends Message{
 	@Override
 	public void action(ClientSession sess) {
 		
-		if(sess.getActiveSessions().contains(this.getTo())){
-			ClientSession session = sess.getActiveSessions().get(this.getTo());
+		ClientSession session = sess.getActiveSessions().get(this.getTo());
+		if(session!=null)
 			if(session.isAlive()) session.sendMessage(this);
-		}
+		
 		
 			
 		

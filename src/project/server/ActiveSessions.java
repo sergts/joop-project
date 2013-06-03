@@ -38,8 +38,10 @@ public class ActiveSessions {
 	 * removes the specified client session
 	 * @param sess - session to be removed
 	 */
-	public synchronized void removeSession(ClientSession sess){
-		sessionMap.remove(sess.getName());
+	public void removeSession(ClientSession sess){
+		synchronized(sessionMap){
+			sessionMap.remove(sess.getName());
+		}
 	}
 	
 	
@@ -58,22 +60,17 @@ public class ActiveSessions {
 		return sessionMap.values().iterator();
 	}
 	
-	/**
-	 * Checks if there is a user with this name
-	 */
-	public synchronized boolean contains(String name){
-		if(sessionMap.containsKey(name)) return true;
-		return false;
-	}
 	
 	
 	/**
 	 * @param name - name of the session
 	 * @return session specified by the name
 	 */
-	public synchronized ClientSession get(String name){
-		if(sessionMap.containsKey(name)) return sessionMap.get(name);
-		return null;
+	public ClientSession get(String name){
+		synchronized(sessionMap){
+			if(sessionMap.containsKey(name)) return sessionMap.get(name);
+			return null;
+		}
 	}
 	
 	

@@ -78,7 +78,7 @@ public class DownloadConn extends Thread {
 					}
 				}
 			}
-            client.getLogger().add("Connected to uploader: " + ip + ":" + port);
+            client.getLogger().add("Connected to uploader: " + ip + ":" + port + ", file " + fileName);
             
             
             InputStream in = clientSocket.getInputStream(); // read from

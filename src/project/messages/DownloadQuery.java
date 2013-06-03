@@ -36,26 +36,7 @@ public class DownloadQuery extends Message {
 	 */
 	@Override
 	public void action(ClientSession sess) {
-
 		
-		String filename = this.getContents();
-		if(sess.getActiveSessions().contains(this.getTo())){
-			ClientSession session = sess.getActiveSessions().get(this.getTo());
-			if(session.isAlive()){
-				if(session.getFiles().containsKey(filename)){
-					
-					session.sendMessage(new OpenUploadConnMsg(
-							session.getFiles().get(filename).getPath(), 
-							sess.getName() + DELIMITER + filename + DELIMITER + session.getIp() ));
-					
-				}else{
-					sess.sendMessage(new TextMessage("File "  + filename + " of user " + session.getName() + " was not found" ));
-				}
-			}
-		}
-		
-		
-		/*
 		ClientSession session = sess.getActiveSessions().get(this.getTo());
 		String filename = this.getContents();
 		if(session != null){
@@ -66,7 +47,7 @@ public class DownloadQuery extends Message {
 						sess.getName() + DELIMITER + filename + DELIMITER + session.getIp() ));
 				
 			}
-		}*/
+		}
 		
 		
 		
