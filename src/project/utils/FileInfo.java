@@ -67,6 +67,12 @@ public class FileInfo implements Serializable {
 	public String getPath() {
 		return absolutePath;
 	}
+	
+	public boolean equals(FileInfo another){
+		if(this.size == another.size && this.absolutePath.equals(another.absolutePath))
+			return true;
+		return false;
+	}
 
 	
 	

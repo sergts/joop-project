@@ -22,12 +22,13 @@ import project.utils.FileInfo;
 public class DirWatcher extends Thread {
 	private String path;
 	private HashMap<File, Long> dir = new HashMap<File, Long>();
-	private ConcurrentHashMap<String, FileInfo> fileNames;
+	private ConcurrentHashMap<String, FileInfo> filesMap;
 	private File directory;
 	private long lastmod;
 	private Client client;
 	private boolean run = true;
-	private static int MODIFIED_TIME_DIFFERENCE = 3000;
+	private static int MODIFIED_TIME_DIFFERENCE = 1000; //ms
+	private static int THREAD_SLEEP_TIME = 2000; //ms
 	
 
 	
@@ -42,12 +43,10 @@ public class DirWatcher extends Thread {
 		this.path = path;
 		client.getLogger().add("Sharing " + path);
 		directory = new File(path);
-		fileNames =  getFilesFormatted(directory.listFiles());
-		client.getOut().addMessage(new UpdFilesMsg(fileNames));
+		filesMap =  getFilesFormatted(directory.listFiles());
+		client.getOut().addMessage(new UpdFilesMsg(filesMap));
 		lastmod = directory.lastModified();
 		this.client = client;
-
-		
 	
 		start();
 	}
@@ -64,13 +63,13 @@ public class DirWatcher extends Thread {
 		while (run) {
 			modified = directory.lastModified();
 			if(modified > lastmod + MODIFIED_TIME_DIFFERENCE){
-				fileNames =  getFilesFormatted(directory.listFiles());
+				filesMap =  getFilesFormatted(directory.listFiles());
 				lastmod = modified;
-				client.getOut().addMessage(new UpdFilesMsg(fileNames));
+				client.getOut().addMessage(new UpdFilesMsg(filesMap));
 				
 			}
 			try{
-				Thread.sleep(2000);
+				Thread.sleep(THREAD_SLEEP_TIME);
 			}catch(Exception e){}
 			
 			
@@ -82,9 +81,12 @@ public class DirWatcher extends Thread {
 	 * @return - files with file information map
 	 */
 	public ConcurrentHashMap<String, FileInfo> getFiles(){
-		return fileNames;
+		return filesMap;
 	}
 	
+	/**
+	 * Stops this thread's main while cycle
+	 */
 	public void stopThread(){
 		this.run = false;
 	}

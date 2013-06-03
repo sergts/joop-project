@@ -41,6 +41,9 @@ public class OpenDownloadConnMsg extends Message{
 		super(m, to);
 	}
 	
+	/**
+	 * Asks client to open a download connection.
+	 */
 	@Override
 	public void action(Client cli) {
 		
@@ -53,14 +56,19 @@ public class OpenDownloadConnMsg extends Message{
 		
 	}
 
+	/**
+	 * Sends this message to user speciafied by "to" variable
+	 */
 	@Override
 	public void action(ClientSession sess) {
 		
-		
-		ClientSession session = sess.getActiveSessions().get(this.getTo());
-		if(session!=null){
-			session.sendMessage(this);
+		if(sess.getActiveSessions().contains(this.getTo())){
+			ClientSession session = sess.getActiveSessions().get(this.getTo());
+			if(session.isAlive()) session.sendMessage(this);
 		}
+		
+			
+		
 		
 		
 		

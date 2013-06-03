@@ -150,12 +150,12 @@ public class Client extends Thread {
 	 */
 	public void uploadConn(String fileName, String downloadInfo){
 		int port = getFreePort();
-		new UploadConn(fileName, port, this);
-		
+		new UploadConn(fileName, port, this, downloadInfo);
+		/*
 		out.addMessage(new OpenDownloadConnMsg( 
 				downloadInfo.substring(downloadInfo.indexOf("<") + 1) + "<"+port, 
 				downloadInfo.substring(START_INDEX, downloadInfo.indexOf("<")) ));
-		
+		*/
 		
 	}
 	

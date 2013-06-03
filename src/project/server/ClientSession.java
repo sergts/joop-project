@@ -41,7 +41,7 @@ public class ClientSession extends Thread {
 		netOut.flush();
 		netIn = new ObjectInputStream(getSocket().getInputStream());
 		setFiles(new ConcurrentHashMap<String, FileInfo>());
-		getFiles().put("null", new FileInfo(0 ,null, null));
+		//getFiles().put("null", new FileInfo(0 ,null, null));
 		name = null;
 		run = true;
 		System.out.println( "ClientSession " + this + " stardib..." );

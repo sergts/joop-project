@@ -31,9 +31,13 @@ public class UpdFilesMsg extends Message {
 		
 	}
 
+	/**
+	 * Updates files on server according to what the user has.
+	 */
 	@Override
 	public void action(ClientSession sess) {
 		sess.setFiles(getFiles());
+
 	}
 	
 	

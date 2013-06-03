@@ -63,6 +63,8 @@ public abstract class Message implements Serializable, Actable {
 		this.to = null;
 		
 	}
+	
+	
 	/**
 	 * {@link Constructor}
 	 * @param files  - filenames and fileinfo to be transferred with msg

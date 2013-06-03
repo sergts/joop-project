@@ -30,21 +30,45 @@ public class DownloadQuery extends Message {
 	public void action(Client cli) {
 	}
 
+	
+	/**
+	 * Checks if wanted file and user exist, and sends them a message to start uploading file.
+	 */
 	@Override
 	public void action(ClientSession sess) {
 
 		
+		String filename = this.getContents();
+		if(sess.getActiveSessions().contains(this.getTo())){
+			ClientSession session = sess.getActiveSessions().get(this.getTo());
+			if(session.isAlive()){
+				if(session.getFiles().containsKey(filename)){
+					
+					session.sendMessage(new OpenUploadConnMsg(
+							session.getFiles().get(filename).getPath(), 
+							sess.getName() + DELIMITER + filename + DELIMITER + session.getIp() ));
+					
+				}else{
+					sess.sendMessage(new TextMessage("File "  + filename + " of user " + session.getName() + " was not found" ));
+				}
+			}
+		}
 		
+		
+		/*
 		ClientSession session = sess.getActiveSessions().get(this.getTo());
 		String filename = this.getContents();
 		if(session != null){
 			if(session.getFiles().containsKey(filename)){
 				
-				session.sendMessage(new OpenUploadConnMsg(session.getFiles().get(filename).getPath(), 
+				session.sendMessage(new OpenUploadConnMsg(
+						session.getFiles().get(filename).getPath(), 
 						sess.getName() + DELIMITER + filename + DELIMITER + session.getIp() ));
-				System.out.println("upload message sent");
+				
 			}
-		}
+		}*/
+		
+		
 		
 		
 

@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 
 import project.client.Client;
 import project.server.ClientSession;
+import project.server.Server;
 
 /**
  * This class implements the logic of the message
@@ -33,12 +34,14 @@ public class PersonalMessage extends Message{
 	@Override
 	public void action(ClientSession sess) {
 		
-		
-		ClientSession session = sess.getActiveSessions().get(this.getTo());
-		if (session!=null) {
+		if(sess.getActiveSessions().contains(this.getTo())){
+			ClientSession session = sess.getActiveSessions().get(this.getTo());
 			session.sendMessage(new TextMessage(this.getContents()));
-			System.out.println("PM message sent");
+			Server.writeMsgIntoLogFile("PM message sent from " + sess + " to " + session);
 		}
+		
+		
+		
 		
 		
 	}

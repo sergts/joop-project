@@ -58,6 +58,14 @@ public class ActiveSessions {
 		return sessionMap.values().iterator();
 	}
 	
+	/**
+	 * Checks if there is a user with this name
+	 */
+	public synchronized boolean contains(String name){
+		if(sessionMap.containsKey(name)) return true;
+		return false;
+	}
+	
 	
 	/**
 	 * @param name - name of the session

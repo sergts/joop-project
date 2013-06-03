@@ -316,7 +316,10 @@ public class GUI extends JFrame{
 		}
 	}
 	
-	
+	/**
+	 * Sets client to connect to the specified addess.
+	 *
+	 */
 	class ConnectListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			String addr = connectTextField.getText().trim();
@@ -394,12 +397,13 @@ public class GUI extends JFrame{
 					String to  = usersList.getSelectedValue();
 					client.getOut().addMessage(new PersonalMessage(message, to));
 					logger.add("Message sent to " + to);
+					PMTextField.requestFocusInWindow();
+					PMTextField.setText("");
 					
 				}
 			}
 			
-			PMTextField.requestFocusInWindow();
-			PMTextField.setText("");
+			
 			
 			
 			
