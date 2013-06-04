@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.io.*;
 import java.lang.reflect.Constructor;
 
+import project.client.utils.DirectoryNotFoundException;
 import project.messages.UpdFilesMsg;
 import project.utils.FileInfo;
 
@@ -60,20 +61,29 @@ public class DirWatcher extends Thread {
 
 	public void run() {
 		long modified;
-		while (run) {
-			modified = directory.lastModified();
-			if(modified > lastmod + MODIFIED_TIME_DIFFERENCE){
-				filesMap =  getFilesFormatted(directory.listFiles());
-				lastmod = modified;
-				client.getOut().addMessage(new UpdFilesMsg(filesMap));
+		try{
+			while (run) {
 				
+				if(!directory.exists()) throw new DirectoryNotFoundException();
+				modified = directory.lastModified();
+				if(modified > lastmod + MODIFIED_TIME_DIFFERENCE){
+					filesMap =  getFilesFormatted(directory.listFiles());
+					lastmod = modified;
+					client.getOut().addMessage(new UpdFilesMsg(filesMap));
+						
+				}
+				try{
+					Thread.sleep(THREAD_SLEEP_TIME);
+				}catch(Exception e){}
 			}
-			try{
-				Thread.sleep(THREAD_SLEEP_TIME);
-			}catch(Exception e){}
-			
-			
+		}catch(DirectoryNotFoundException e){
+				client.getLogger().add("Directory " + path + " not found");
+				client.getOut().addMessage(new UpdFilesMsg(new ConcurrentHashMap<String, FileInfo>()));
 		}
+			
+			
+			
+		
 		
 	}
 	

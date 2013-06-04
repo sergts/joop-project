@@ -497,6 +497,11 @@ public class GUI extends JFrame{
 		}
 	}
 	
+	/**
+	 * Allows user to select if he want to write logs to file
+	 * @author Serge
+	 *
+	 */
 	class LogModeListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent e) {

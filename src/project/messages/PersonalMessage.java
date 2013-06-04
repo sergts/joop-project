@@ -39,6 +39,8 @@ public class PersonalMessage extends Message{
 		if(session!=null){
 			session.sendMessage(new TextMessage(this.getContents()));
 			Server.writeMsgIntoLogFile("PM message sent from " + sess + " to " + session);
+		}else{
+			sess.sendMessage(new TextMessage("User " + this.getTo() + " was not found"));
 		}
 		
 		
