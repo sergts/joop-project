@@ -1,9 +1,8 @@
 package project.server;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -15,7 +14,7 @@ public class ActiveSessions {
 	
 	
 	
-	private Map<String, ClientSession> sessionMap = new HashMap<String, ClientSession>();
+	private ConcurrentHashMap<String, ClientSession> sessionMap = new ConcurrentHashMap<String, ClientSession>();
 	
 	/**
 	 * adds session to active session if it was not there
